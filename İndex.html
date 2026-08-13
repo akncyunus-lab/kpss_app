@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KPSS Cep</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f9;
+            color: #172033;
+        }
+
+        .header {
+            background: #173b8f;
+            color: white;
+            padding: 28px 20px;
+            border-radius: 0 0 25px 25px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.85;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+        }
+
+        .card h2 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .card p {
+            color: #667085;
+            margin-bottom: 15px;
+        }
+
+        .button {
+            width: 100%;
+            border: none;
+            background: #173b8f;
+            color: white;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat {
+            background: white;
+            padding: 18px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 25px;
+            color: #173b8f;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>KPSS Cep</h1>
+        <p>Sınava hazırlan, kendini geliştir.</p>
+    </div>
+
+    <div class="container">
+
+        <div class="stats">
+            <div class="stat">
+                <strong>0</strong>
+                Çözülen Soru
+            </div>
+
+            <div class="stat">
+                <strong>%0</strong>
+                Başarı
+            </div>
+        </div>
+
+        <br>
+
+        <div class="card">
+            <h2>📝 Deneme Sınavı</h2>
+            <p>KPSS seviyene uygun soruları çöz.</p>
+            <button class="button">Denemeye Başla</button>
+        </div>
+
+        <div class="card">
+            <h2>📚 Dersler</h2>
+            <p>Türkçe, Matematik, Tarih, Coğrafya ve Vatandaşlık.</p>
+            <button class="button">Derslere Git</button>
+        </div>
+
+        <div class="card">
+            <h2>📊 İstatistikler</h2>
+            <p>Çözdüğün soruları ve başarı durumunu takip et.</p>
+            <button class="button">İstatistikler</button>
+        </div>
+
+    </div>
+
+</body>
+</html>
