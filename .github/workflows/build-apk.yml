@@ -30,9 +30,8 @@ jobs:
 
       - name: Web dosyasını hazırla
         run: |
-          test -f index.html
           mkdir -p www
-          cp index.html www/index.html
+          cp ./index.html ./www/index.html
 
       - name: Capacitor Android projesini oluştur
         run: |
