@@ -31,8 +31,10 @@ jobs:
 
       - name: Web dosyasını hazırla
         run: |
-    mkdir -p www
-    cp "$GITHUB_WORKSPACE/index.html" "$GITHUB_WORKSPACE/www/index.html"
+         mkdir -p www
+       cp "$GITHUB_WORKSPACE/
+       index.html" "$GITHUB_WORKSPACE/
+       www/index.html"
 
       - name: Capacitor Android projesini oluştur
         run: |
