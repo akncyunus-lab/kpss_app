@@ -30,11 +30,10 @@ jobs:
 
       - name: Web dosyasını hazırla
         run: |
-          pwd
-          ls -la
-          test -f "$GITHUB_WORKSPACE/Index.html"
-          mkdir -p "$GITHUB_WORKSPACE/www"
-          cp "$GITHUB_WORKSPACE/Index.html" "$GITHUB_WORKSPACE/www/index.html"
+          mkdir -p www
+    INDEX_FILE=$(find "$GITHUB_WORKSPACE" -maxdepth 1 -type f -iname "Index.html" -print -quit)
+    echo "Bulunan dosya: $INDEX_FILE"
+    cp "$INDEX_FILE" www/Index.html
 
       - name: Capacitor Android projesini oluştur
         run: |
