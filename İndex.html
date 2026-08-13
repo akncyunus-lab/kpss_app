@@ -1,95 +1,162 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KPSS Cep</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+<title>KPSS Cep</title>
 
-        body {
-            background: #f4f6f9;
-            color: #172033;
-        }
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
 
-        .header {
-            background: #173b8f;
-            color: white;
-            padding: 28px 20px;
-            border-radius: 0 0 25px 25px;
-        }
+body{
+    background:#f4f6f9;
+    color:#172033;
+}
 
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
+.header{
+    background:#173b8f;
+    color:white;
+    padding:28px 20px;
+    border-radius:0 0 25px 25px;
+}
 
-        .header p {
-            opacity: 0.85;
-        }
+.header h1{
+    font-size:28px;
+    margin-bottom:8px;
+}
 
-        .container {
-            padding: 20px;
-        }
+.header p{
+    opacity:.85;
+}
 
-        .card {
-            background: white;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 18px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.07);
-        }
+.container{
+    padding:20px;
+}
 
-        .card h2 {
-            margin-bottom: 8px;
-            font-size: 20px;
-        }
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-bottom:20px;
+}
 
-        .card p {
-            color: #667085;
-            margin-bottom: 15px;
-        }
+.stat{
+    background:white;
+    padding:18px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
 
-        .button {
-            width: 100%;
-            border: none;
-            background: #173b8f;
-            color: white;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
+.stat strong{
+    display:block;
+    font-size:25px;
+    color:#173b8f;
+    margin-bottom:5px;
+}
 
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+.card{
+    background:white;
+    padding:20px;
+    margin-bottom:15px;
+    border-radius:18px;
+    box-shadow:0 4px 15px rgba(0,0,0,.07);
+}
 
-        .stat {
-            background: white;
-            padding: 18px;
-            border-radius: 16px;
-            text-align: center;
-        }
+.card h2{
+    margin-bottom:8px;
+    font-size:20px;
+}
 
-        .stat strong {
-            display: block;
-            font-size: 25px;
-            color: #173b8f;
-            margin-bottom: 5px;
-        }
-    </style>
+.card p{
+    color:#667085;
+    margin-bottom:15px;
+}
+
+.button{
+    width:100%;
+    border:none;
+    background:#173b8f;
+    color:white;
+    padding:14px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.button:active{
+    transform:scale(.98);
+}
+
+.back{
+    background:#667085;
+    margin-top:10px;
+}
+
+.question-number{
+    color:#173b8f;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.question{
+    font-size:21px;
+    line-height:1.5;
+    margin-bottom:20px;
+}
+
+.option{
+    width:100%;
+    text-align:left;
+    background:white;
+    border:2px solid #e4e7ec;
+    padding:16px;
+    border-radius:13px;
+    margin-bottom:10px;
+    font-size:16px;
+}
+
+.option.correct{
+    background:#d1fadf;
+    border-color:#12b76a;
+}
+
+.option.wrong{
+    background:#fee4e2;
+    border-color:#f04438;
+}
+
+.result{
+    text-align:center;
+    padding:25px 10px;
+}
+
+.result h2{
+    font-size:28px;
+    margin-bottom:12px;
+}
+
+.hidden{
+    display:none;
+}
+
+.lesson-button{
+    margin-bottom:10px;
+}
+</style>
 </head>
 
 <body>
+
+<!-- ANA SAYFA -->
+
+<div id="home">
 
     <div class="header">
         <h1>KPSS Cep</h1>
@@ -99,38 +166,517 @@
     <div class="container">
 
         <div class="stats">
+
             <div class="stat">
-                <strong>0</strong>
+                <strong id="totalQuestions">0</strong>
                 Çözülen Soru
             </div>
 
             <div class="stat">
-                <strong>%0</strong>
+                <strong id="successRate">%0</strong>
                 Başarı
             </div>
+
         </div>
 
-        <br>
-
         <div class="card">
+
             <h2>📝 Deneme Sınavı</h2>
-            <p>KPSS seviyene uygun soruları çöz.</p>
-            <button class="button">Denemeye Başla</button>
+
+            <p>
+                KPSS seviyene uygun soruları çöz.
+            </p>
+
+            <button class="button" onclick="startExam()">
+                Denemeye Başla
+            </button>
+
         </div>
 
         <div class="card">
+
             <h2>📚 Dersler</h2>
-            <p>Türkçe, Matematik, Tarih, Coğrafya ve Vatandaşlık.</p>
-            <button class="button">Derslere Git</button>
+
+            <p>
+                KPSS derslerinden soru çözmeye başla.
+            </p>
+
+            <button class="button" onclick="showLessons()">
+                Derslere Git
+            </button>
+
         </div>
 
         <div class="card">
+
             <h2>📊 İstatistikler</h2>
-            <p>Çözdüğün soruları ve başarı durumunu takip et.</p>
-            <button class="button">İstatistikler</button>
+
+            <p>
+                Çözdüğün soruları ve başarı durumunu takip et.
+            </p>
+
+            <button class="button" onclick="showStats()">
+                İstatistikleri Gör
+            </button>
+
         </div>
 
     </div>
+
+</div>
+
+
+<!-- DERSLER -->
+
+<div id="lessons" class="hidden">
+
+    <div class="header">
+        <h1>📚 Dersler</h1>
+        <p>Çalışmak istediğin dersi seç.</p>
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+
+            <button class="button lesson-button"
+                    onclick="startExam('Türkçe')">
+                🇹🇷 Türkçe
+            </button>
+
+            <button class="button lesson-button"
+                    onclick="startExam('Matematik')">
+                🔢 Matematik
+            </button>
+
+            <button class="button lesson-button"
+                    onclick="startExam('Tarih')">
+                🏛️ Tarih
+            </button>
+
+            <button class="button lesson-button"
+                    onclick="startExam('Coğrafya')">
+                🌍 Coğrafya
+            </button>
+
+            <button class="button lesson-button"
+                    onclick="startExam('Vatandaşlık')">
+                ⚖️ Vatandaşlık
+            </button>
+
+            <button class="button back"
+                    onclick="goHome()">
+                ← Ana Sayfa
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SORU EKRANI -->
+
+<div id="quiz" class="hidden">
+
+    <div class="header">
+
+        <h1>📝 Soru Çöz</h1>
+
+        <p id="lessonTitle">
+            KPSS
+        </p>
+
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="question-number"
+                 id="questionNumber">
+                Soru 1
+            </div>
+
+            <div class="question"
+                 id="questionText">
+            </div>
+
+            <div id="options"></div>
+
+            <button id="nextButton"
+                    class="button hidden"
+                    onclick="nextQuestion()">
+                Sonraki Soru →
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SONUÇ -->
+
+<div id="result" class="hidden">
+
+    <div class="header">
+
+        <h1>🎉 Deneme Bitti</h1>
+
+        <p>Sonuçların hazır.</p>
+
+    </div>
+
+    <div class="container">
+
+        <div class="card result">
+
+            <h2 id="finalScore">
+                0 / 0
+            </h2>
+
+            <p id="finalMessage">
+                Sonuç
+            </p>
+
+            <button class="button"
+                    onclick="startExam()">
+                Tekrar Çöz
+            </button>
+
+            <button class="button back"
+                    onclick="goHome()">
+                ← Ana Sayfa
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const questions = [
+
+{
+question:"Türkiye'nin başkenti aşağıdakilerden hangisidir?",
+options:[
+"İstanbul",
+"Ankara",
+"İzmir",
+"Bursa"
+],
+answer:1
+},
+
+{
+question:"TBMM hangi yıl açılmıştır?",
+options:[
+"1919",
+"1920",
+"1921",
+"1923"
+],
+answer:1
+},
+
+{
+question:"Türkiye'nin en uzun nehri aşağıdakilerden hangisidir?",
+options:[
+"Kızılırmak",
+"Fırat",
+"Dicle",
+"Sakarya"
+],
+answer:0
+},
+
+{
+question:"'Kitap' kelimesinin çoğulu aşağıdakilerden hangisidir?",
+options:[
+"Kitaplar",
+"Kitapçı",
+"Kitaplık",
+"Kitapsız"
+],
+answer:0
+},
+
+{
+question:"5 × 6 işleminin sonucu kaçtır?",
+options:[
+"20",
+"25",
+"30",
+"35"
+],
+answer:2
+}
+
+];
+
+
+let currentQuestion = 0;
+let correctAnswers = 0;
+let selectedLesson = "KPSS";
+
+let totalQuestions =
+    Number(localStorage.getItem("totalQuestions")) || 0;
+
+let totalCorrect =
+    Number(localStorage.getItem("totalCorrect")) || 0;
+
+
+function hideAll(){
+
+    document.getElementById("home")
+        .classList.add("hidden");
+
+    document.getElementById("lessons")
+        .classList.add("hidden");
+
+    document.getElementById("quiz")
+        .classList.add("hidden");
+
+    document.getElementById("result")
+        .classList.add("hidden");
+}
+
+
+function goHome(){
+
+    hideAll();
+
+    document.getElementById("home")
+        .classList.remove("hidden");
+
+    updateStats();
+}
+
+
+function showLessons(){
+
+    hideAll();
+
+    document.getElementById("lessons")
+        .classList.remove("hidden");
+}
+
+
+function startExam(lesson="KPSS"){
+
+    selectedLesson = lesson;
+
+    currentQuestion = 0;
+
+    correctAnswers = 0;
+
+    hideAll();
+
+    document.getElementById("quiz")
+        .classList.remove("hidden");
+
+    document.getElementById("lessonTitle")
+        .innerText = selectedLesson;
+
+    loadQuestion();
+}
+
+
+function loadQuestion(){
+
+    const q = questions[currentQuestion];
+
+    document.getElementById("questionNumber")
+        .innerText =
+        "Soru " +
+        (currentQuestion + 1) +
+        " / " +
+        questions.length;
+
+    document.getElementById("questionText")
+        .innerText = q.question;
+
+    const options =
+        document.getElementById("options");
+
+    options.innerHTML = "";
+
+    q.options.forEach((option,index)=>{
+
+        const button =
+            document.createElement("button");
+
+        button.className = "option";
+
+        button.innerText =
+            String.fromCharCode(65 + index)
+            + ") "
+            + option;
+
+        button.onclick =
+            () => selectAnswer(index,button);
+
+        options.appendChild(button);
+
+    });
+
+    document.getElementById("nextButton")
+        .classList.add("hidden");
+}
+
+
+function selectAnswer(index,button){
+
+    const q = questions[currentQuestion];
+
+    const allOptions =
+        document.querySelectorAll(".option");
+
+    allOptions.forEach(btn=>{
+        btn.disabled = true;
+    });
+
+    if(index === q.answer){
+
+        button.classList.add("correct");
+
+        correctAnswers++;
+
+    }else{
+
+        button.classList.add("wrong");
+
+        allOptions[q.answer]
+            .classList.add("correct");
+
+    }
+
+    document.getElementById("nextButton")
+        .classList.remove("hidden");
+}
+
+
+function nextQuestion(){
+
+    totalQuestions++;
+
+    totalCorrect +=
+        currentQuestion < questions.length
+        ? 0
+        : 0;
+
+    const q = questions[currentQuestion];
+
+    /*
+       Son cevap doğruysa istatistiğe ekle.
+    */
+
+    if(
+        document.querySelector(".option.correct")
+        &&
+        document.querySelector(".option.correct")
+            .innerText
+            .includes(
+                String.fromCharCode(65 + q.answer)
+            )
+    ){
+        totalCorrect++;
+    }
+
+    localStorage.setItem(
+        "totalQuestions",
+        totalQuestions
+    );
+
+    localStorage.setItem(
+        "totalCorrect",
+        totalCorrect
+    );
+
+    currentQuestion++;
+
+    if(currentQuestion >= questions.length){
+
+        finishExam();
+
+    }else{
+
+        loadQuestion();
+
+    }
+}
+
+
+function finishExam(){
+
+    hideAll();
+
+    document.getElementById("result")
+        .classList.remove("hidden");
+
+    document.getElementById("finalScore")
+        .innerText =
+        correctAnswers +
+        " / " +
+        questions.length;
+
+    const percentage =
+        Math.round(
+            (correctAnswers /
+            questions.length) * 100
+        );
+
+    document.getElementById("finalMessage")
+        .innerText =
+        "Başarı oranınız: %" +
+        percentage;
+}
+
+
+function updateStats(){
+
+    document.getElementById("totalQuestions")
+        .innerText = totalQuestions;
+
+    let percentage = 0;
+
+    if(totalQuestions > 0){
+
+        percentage =
+            Math.round(
+                (totalCorrect /
+                totalQuestions) * 100
+            );
+
+    }
+
+    document.getElementById("successRate")
+        .innerText =
+        "%" + percentage;
+}
+
+
+function showStats(){
+
+    alert(
+        "Çözülen soru: " +
+        totalQuestions +
+        "\nDoğru cevap: " +
+        totalCorrect
+    );
+
+}
+
+
+updateStats();
+
+</script>
 
 </body>
 </html>
