@@ -32,9 +32,9 @@ jobs:
         run: |
           pwd
           ls -la
-          test -f "$GITHUB_WORKSPACE/index.html"
+          test -f "$GITHUB_WORKSPACE/Index.html"
           mkdir -p "$GITHUB_WORKSPACE/www"
-          cp "$GITHUB_WORKSPACE/index.html" "$GITHUB_WORKSPACE/www/index.html"
+          cp "$GITHUB_WORKSPACE/Index.html" "$GITHUB_WORKSPACE/www/index.html"
 
       - name: Capacitor Android projesini oluştur
         run: |
