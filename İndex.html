@@ -371,7 +371,8 @@ options:[
 "İzmir",
 "Bursa"
 ],
-answer:1
+answer:1,
+lesson:"Türkçe"
 },
 
 {
@@ -382,7 +383,8 @@ options:[
 "1921",
 "1923"
 ],
-answer:1
+answer:1,
+lesson:"Matematik"
 },
 
 {
@@ -393,7 +395,8 @@ options:[
 "Dicle",
 "Sakarya"
 ],
-answer:0
+answer:0,
+lesson:"Tarih"
 },
 
 {
@@ -404,7 +407,8 @@ options:[
 "Kitaplık",
 "Kitapsız"
 ],
-answer:0
+answer:0,
+lesson:"Coğrafya"
 },
 
 {
@@ -415,7 +419,8 @@ options:[
 "30",
 "35"
 ],
-answer:2
+answer:2,
+lesson:"Vatandaşlık"
 }
 
 ];
@@ -490,14 +495,19 @@ function startExam(lesson="KPSS"){
 
 function loadQuestion(){
 
-    const q = questions[currentQuestion];
+    const filteredQuestions =
+    selectedLesson === "KPSS"
+    ? questions
+    : questions.filter(q => q.lesson === selectedLesson);
+
+const q = filteredQuestions[currentQuestion];
 
     document.getElementById("questionNumber")
         .innerText =
         "Soru " +
         (currentQuestion + 1) +
         " / " +
-        questions.length;
+        filteredQuestions.length
 
     document.getElementById("questionText")
         .innerText = q.question;
@@ -566,29 +576,14 @@ function nextQuestion(){
 
     totalQuestions++;
 
-    totalCorrect +=
-        currentQuestion < questions.length
-        ? 0
-        : 0;
+    // Bu soruda yanlış cevap seçilmediyse doğru cevap verilmiştir
+    const wrongAnswer = document.querySelector(".option.wrong");
 
-    const q = questions[currentQuestion];
-
-    /*
-       Son cevap doğruysa istatistiğe ekle.
-    */
-
-    if(
-        document.querySelector(".option.correct")
-        &&
-        document.querySelector(".option.correct")
-            .innerText
-            .includes(
-                String.fromCharCode(65 + q.answer)
-            )
-    ){
+    if(!wrongAnswer){
         totalCorrect++;
     }
 
+    // İstatistikleri kaydet
     localStorage.setItem(
         "totalQuestions",
         totalQuestions
@@ -601,7 +596,13 @@ function nextQuestion(){
 
     currentQuestion++;
 
-    if(currentQuestion >= questions.length){
+    // Ders seçimine göre soru listesini kontrol et
+    const filteredQuestions =
+        selectedLesson === "KPSS"
+        ? questions
+        : questions.filter(q => q.lesson === selectedLesson);
+
+    if(currentQuestion >= filteredQuestions.length){
 
         finishExam();
 
