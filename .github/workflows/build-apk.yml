@@ -30,7 +30,9 @@ jobs:
         run: npm install
 
       - name: Web dosyasını hazırla
-        run: npm run build
+        run: |
+    mkdir -p www
+    cp "$GITHUB_WORKSPACE/index.html" "$GITHUB_WORKSPACE/www/index.html"
 
       - name: Capacitor Android projesini oluştur
         run: |
