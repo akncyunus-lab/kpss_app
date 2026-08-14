@@ -758,17 +758,32 @@ function finishExam(){
     document.getElementById("result")
         .classList.remove("hidden");
 
+    const selectedLevel =
+        localStorage.getItem("selectedLevel") ||
+        "Ortaöğretim";
+
+    const filteredQuestions =
+        questions.filter(q =>
+            q.level === selectedLevel &&
+            (
+                selectedLesson === "KPSS" ||
+                q.lesson === selectedLesson
+            )
+        );
+
     document.getElementById("finalScore")
         .innerText =
         correctAnswers +
         " / " +
-        questions.length;
+        filteredQuestions.length;
 
     const percentage =
-        Math.round(
+        filteredQuestions.length > 0
+        ? Math.round(
             (correctAnswers /
-            questions.length) * 100
-        );
+            filteredQuestions.length) * 100
+        )
+        : 0;
 
     document.getElementById("finalMessage")
         .innerText =
