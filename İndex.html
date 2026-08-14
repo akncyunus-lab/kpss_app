@@ -629,16 +629,11 @@ function startExam(lesson="KPSS"){
 
 function loadQuestion(){
 
-    const selectedLevel =
-localStorage.getItem("selectedLevel") || "Ortaöğretim";
-
-const filteredQuestions =
-questions.filter(q =>
-    q.level === selectedLevel &&
-    (
-        selectedLesson === "KPSS" ||
-        q.lesson === selectedLesson
-    )
+    const filteredQuestions =
+selectedLesson === "KPSS"
+? questions
+: questions.filter(q =>
+    q.lesson === selectedLesson
 );
 
 const q = filteredQuestions[currentQuestion];
@@ -684,10 +679,17 @@ const q = filteredQuestions[currentQuestion];
 
 function selectAnswer(index,button){
 
-    const filteredQuestions =
-selectedLesson === "KPSS"
-? questions
-: questions.filter(q => q.lesson === selectedLesson);
+    const selectedLevel =
+localStorage.getItem("selectedLevel") || "Ortaöğretim";
+
+const filteredQuestions =
+questions.filter(q =>
+    q.level === selectedLevel &&
+    (
+        selectedLesson === "KPSS" ||
+        q.lesson === selectedLesson
+    )
+);
 
 const q =
 filteredQuestions[currentQuestion];;
