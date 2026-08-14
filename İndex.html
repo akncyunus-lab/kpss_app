@@ -721,29 +721,8 @@ filteredQuestions[currentQuestion];;
 
 function nextQuestion(){
 
-    totalQuestions++;
-
-    // Bu soruda yanlış cevap seçilmediyse doğru cevap verilmiştir
-    const wrongAnswer = document.querySelector(".option.wrong");
-
-    if(!wrongAnswer){
-        totalCorrect++;
-    }
-
-    // İstatistikleri kaydet
-    localStorage.setItem(
-        "totalQuestions",
-        totalQuestions
-    );
-
-    localStorage.setItem(
-        "totalCorrect",
-        totalCorrect
-    );
-
     currentQuestion++;
 
-    // Ders seçimine göre soru listesini kontrol et
     const filteredQuestions =
         selectedLesson === "KPSS"
         ? questions
@@ -759,6 +738,7 @@ function nextQuestion(){
 
     }
 }
+
 
 
 function finishExam(){
