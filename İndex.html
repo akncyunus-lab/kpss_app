@@ -178,7 +178,25 @@ body{
             </div>
 
         </div>
+<div class="card">
 
+    <h2>🎓 Sınav Seviyeni Seç</h2>
+
+    <p>Hazırlandığın KPSS seviyesini seç.</p>
+
+    <button class="button" onclick="selectLevel('Ortaöğretim')">
+        KPSS Ortaöğretim
+    </button>
+
+    <button class="button" onclick="selectLevel('Ön Lisans')">
+        KPSS Ön Lisans
+    </button>
+
+    <button class="button" onclick="selectLevel('Lisans')">
+        KPSS Lisans
+    </button>
+
+</div>
         <div class="card">
 
             <h2>📝 Deneme Sınavı</h2>
@@ -533,7 +551,13 @@ const questions = [
 
 ];
 
+function selectLevel(level){
 
+    localStorage.setItem("selectedLevel", level);
+
+    alert("Seçilen seviye: " + level);
+
+}
 
 let currentQuestion = 0;
 let correctAnswers = 0;
