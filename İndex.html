@@ -676,7 +676,13 @@ const q = filteredQuestions[currentQuestion];
 
 function selectAnswer(index,button){
 
-    const q = questions[currentQuestion];
+    const filteredQuestions =
+selectedLesson === "KPSS"
+? questions
+: questions.filter(q => q.lesson === selectedLesson);
+
+const q =
+filteredQuestions[currentQuestion];;
 
     const allOptions =
         document.querySelectorAll(".option");
