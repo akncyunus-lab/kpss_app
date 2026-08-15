@@ -34,6 +34,7 @@ jobs:
           INDEX_FILE=$(find "$GITHUB_WORKSPACE" -maxdepth 1 -type f -iname "index.html" -print -quit)
           echo "Bulunan dosya: $INDEX_FILE"
           cp "$INDEX_FILE" www/index.html
+          cp "$GITHUB_WORKSPACE/questions.js" www/questions.js
  
       - name: Capacitor Android projesini oluştur
         run: |
