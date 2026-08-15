@@ -387,13 +387,19 @@ function selectLevel(level){
 
     localStorage.setItem("selectedLevel", level);
 
+    currentQuestion = 0;
+    correctAnswers = 0;
+    questionPool = [];
+
     alert("Seçilen seviye: " + level);
 
 }
 
+
 let currentQuestion = 0;
 let correctAnswers = 0;
 let selectedLesson = "KPSS";
+let questionPool = [];
 
 let totalQuestions =
     Number(localStorage.getItem("totalQuestions")) || 0;
@@ -481,7 +487,13 @@ function startExam(lesson="KPSS"){
 
 function loadQuestion(){
 
-    const filteredQuestions = getFilteredQuestions();
+    if (questionPool.length === 0) {
+    questionPool = getRandomQuestions(
+        getFilteredQuestions().length
+    );
+}
+
+const filteredQuestions = questionPool;
 
 const q = filteredQuestions[currentQuestion];
 
