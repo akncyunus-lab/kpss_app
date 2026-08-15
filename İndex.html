@@ -415,6 +415,13 @@ function getFilteredQuestions(){
         )
     );
 }
+function getRandomQuestions(count) {
+    const filtered = getFilteredQuestions();
+
+    const shuffled = [...filtered].sort(() => Math.random() - 0.5);
+
+    return shuffled.slice(0, Math.min(count, shuffled.length));
+}
 
 function hideAll(){
 
