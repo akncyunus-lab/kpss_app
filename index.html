@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KPSS Cep</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#172033;font-family:Arial,sans-serif}.app{max-width:800px;margin:auto;padding:14px}
+header,.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 5px 18px #0001}header{background:linear-gradient(135deg,#173b7a,#2459a8);color:white}h1{margin:0 0 5px}h2{margin:0 0 12px}p{color:#687386}
+.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}button{border:0;border-radius:13px;padding:14px;font-weight:700;font-size:15px;background:#edf2fa;color:#173b7a;cursor:pointer}.primary{background:#2459a8;color:white}.danger{background:#fff0f0;color:#a22}.back{margin-bottom:12px}
+.grid button{text-align:left;min-height:62px}.grid small{display:block;color:#718096;margin-top:5px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f4f7fb;padding:11px;border-radius:12px;text-align:center}.stat b{display:block;font-size:20px}.stat small{color:#687386}
+.question{font-size:20px;font-weight:700;line-height:1.5}.options{display:grid;gap:9px}.option{text-align:left;background:#f7f8fb;border:2px solid #e1e6ef}.correct{background:#def5e5!important;border-color:#2a9b50!important}.wrong{background:#fde3e3!important;border-color:#d44!important}
+.feedback{padding:12px;border-radius:12px;margin:12px 0;font-weight:700}.ok{background:#e5f7ea;color:#176b36}.bad{background:#fff0f0;color:#9d2222}
+.bar{height:8px;background:#e7ebf2;border-radius:20px;overflow:hidden;margin:12px 0}.bar>i{display:block;height:100%;background:#2459a8}.actions{display:flex;gap:8px;margin-top:12px}.actions>*{flex:1}
+.item{background:#f6f8fc;padding:12px;border-radius:12px;margin:8px 0}.item small{color:#687386}.empty{background:#fff7e1;padding:14px;border-radius:12px}
+input{width:100%;padding:12px;border:2px solid #e1e6ef;border-radius:10px;margin:8px 0}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.question{font-size:18px}}
+</style></head><body><div class="app">
+<header><h1>📚 KPSS Cep</h1><div>Çalış • Kaydet • Yanlışlarını tekrar et • Kaldığın yerden devam et</div></header>
+
+<section id="home" class="card"><h2>🏠 Çalışma Merkezi</h2><div class="stats">
+<div class="stat"><b id="stT">0</b><small>Çözülen</small></div><div class="stat"><b id="stC">0</b><small>Doğru</small></div><div class="stat"><b id="stW">0</b><small>Yanlış</small></div><div class="stat"><b id="stS">0</b><small>Kaydedilen</small></div></div>
+<div id="resume" class="empty hidden" style="margin:12px 0"></div>
+<div class="grid">
+<button class="primary" onclick="levels()">🎯 Soru Çöz<small>Seviye → Ders → Konu</small></button>
+<button onclick="savedPage()">⭐ Kaydettiklerim</button>
+<button onclick="wrongPage()">❌ Yanlışlarım</button>
+<button onclick="statsPage()">📊 İstatistikler</button>
+<button onclick="timerPage()">⏱️ KPSS Sayacı</button>
+</div></section>
+
+<section id="levels" class="card hidden"><button onclick="home()" class="back">← Ana Sayfa</button><h2>🎯 Seviye Seç</h2><div class="grid">
+<button onclick="level('Ortaöğretim')">🏫 Ortaöğretim</button><button onclick="level('Ön Lisans')">🎓 Ön Lisans</button><button onclick="level('Lisans')">🎓 Lisans</button></div></section>
+<section id="lessons" class="card hidden"><button onclick="levels()" class="back">← Seviyeler</button><h2>📚 Ders Seç</h2><p id="levtxt"></p><div id="lessonGrid" class="grid"></div></section>
+<section id="topics" class="card hidden"><button onclick="lessonsPage()" class="back">← Dersler</button><h2 id="topTitle">📖 Konu Seç</h2><p id="topSub"></p><div id="topicGrid" class="grid"></div></section>
+
+<section id="quiz" class="card hidden"><button onclick="exitQuiz()" class="back">← Çık</button><p id="meta"></p><div class="bar"><i id="bar"></i></div><b id="num"></b><div id="qtext" class="question"></div><div id="opts" class="options"></div><div id="fb"></div>
+<div class="actions"><button onclick="bookmark()" id="save">☆ Soruyu Kaydet</button><button class="primary hidden" id="next" onclick="next()">Sonraki Soru →</button></div></section>
+
+<section id="result" class="card hidden"><h2>🎉 Test Tamamlandı</h2><p id="rtitle"></p><div class="stats"><div class="stat"><b id="rt">0</b><small>Toplam</small></div><div class="stat"><b id="rc">0</b><small>Doğru</small></div><div class="stat"><b id="rw">0</b><small>Yanlış</small></div><div class="stat"><b id="rp">0%</b><small>Başarı</small></div></div><div class="actions"><button class="primary" onclick="repeat()">🔄 Tekrar Çöz</button><button onclick="home()">🏠 Ana Sayfa</button></div></section>
+
+<section id="savedPage" class="card hidden"><button onclick="home()" class="back">← Ana Sayfa</button><h2>⭐ Kaydettiklerim</h2><div id="savedList"></div><button class="primary" onclick="special('saved')">⭐ Kaydedilenleri Çöz</button></section>
+<section id="wrongPage" class="card hidden"><button onclick="home()" class="back">← Ana Sayfa</button><h2>❌ Yanlışlarım</h2><div id="wrongList"></div><button class="primary" onclick="special('wrong')">❌ Yanlışları Çöz</button></section>
+<section id="statsPage" class="card hidden"><button onclick="home()" class="back">← Ana Sayfa</button><h2>📊 İstatistikler</h2><div id="statsBody"></div></section>
+<section id="timerPage" class="card hidden"><button onclick="home()" class="back">← Ana Sayfa</button><h2>⏱️ KPSS Sayacı</h2><p>Sınav tarihini seç:</p><input id="exam" type="date"><button class="primary" onclick="setExam()">💾 Kaydet</button><div id="count" class="empty" style="margin-top:12px;text-align:center"></div></section>
+</div>
+
+<script src="questions.js"></script><script>
+"use strict";
+function qs(){try{if(typeof questions!=="undefined"&&Array.isArray(questions))return questions}catch(e){}return Array.isArray(window.questions)?window.questions:[]}
+const lessons=["Türkçe","Matematik","Tarih","Coğrafya","Vatandaşlık"];
+const topics={
+"Türkçe":["Sözcükte Anlam","Cümlede Anlam","Paragraf","Dil Bilgisi","Ses Bilgisi","Yazım Kuralları","Noktalama İşaretleri","Anlatım Bozuklukları"],
+"Matematik":["Temel Kavramlar","Sayılar","Bölünebilme","Rasyonel Sayılar","Oran-Orantı","Problemler","Denklemler","Kümeler","Fonksiyonlar","Geometri","Veri-Grafik","Olasılık"],
+"Tarih":["İslamiyet Öncesi Türk Tarihi","İlk Türk-İslam Devletleri","Osmanlı Tarihi","Osmanlı Kültür ve Medeniyeti","Millî Mücadele","Atatürk İlke ve İnkılapları","Cumhuriyet Dönemi","Çağdaş Türk ve Dünya Tarihi"],
+"Coğrafya":["Türkiye'nin Coğrafi Konumu","İklim ve Bitki Örtüsü","Yer Şekilleri","Nüfus ve Yerleşme","Tarım ve Hayvancılık","Madenler ve Enerji","Sanayi ve Ulaşım","Bölgeler","Ekonomik Coğrafya"],
+"Vatandaşlık":["Hukukun Temel Kavramları","Anayasa","Temel Hak ve Özgürlükler","Yasama","Yürütme","Yargı","İdare Hukuku","Seçimler","Devlet Teşkilatı"]};
+const K={saved:"k_saved",wrong:"k_wrong",stats:"k_stats",prog:"k_prog",exam:"k_exam"};
+let lev="",lesson="",topic="",pool=[],i=0,good=0,bad=0,answered=false,mode="normal";
+function read(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}}function write(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function id(q){return [q.level,q.lesson,q.topic,q.question].join("§")}function find(x){return qs().find(q=>id(q)===x)}
+function filter(l,s,t){let a=qs().filter(q=>q.level===l&&q.lesson===s);return t&&t!=="Tüm Konular"?a.filter(q=>q.topic===t):a}
+function hide(){["home","levels","lessons","topics","quiz","result","savedPage","wrongPage","statsPage","timerPage"].forEach(x=>document.getElementById(x).classList.add("hidden"))}
+function home(){hide();document.getElementById("home").classList.remove("hidden");renderHome()}
+function levels(){hide();document.getElementById("levels").classList.remove("hidden")}
+function level(x){lev=x;hide();document.getElementById("lessons").classList.remove("hidden");document.getElementById("levtxt").textContent="Seçilen seviye: "+x;renderLessons()}
+function lessonsPage(){hide();document.getElementById("lessons").classList.remove("hidden");renderLessons()}
+function renderLessons(){let c=document.getElementById("lessonGrid");c.innerHTML="";lessons.forEach((x,j)=>{let b=document.createElement("button");let n=filter(lev,x,"Tüm Konular").length;b.innerHTML=["📖","➗","🏛️","🌍","⚖️"][j]+" "+x+"<small>"+n+" soru</small>";b.onclick=()=>lessonPage(x);c.appendChild(b)})}
+function lessonPage(x){lesson=x;hide();document.getElementById("topics").classList.remove("hidden");document.getElementById("topTitle").textContent="📖 "+x+" Konuları";document.getElementById("topSub").textContent=lev+" • "+x;renderTopics()}
+function renderTopics(){let c=document.getElementById("topicGrid");c.innerHTML="";let all=document.createElement("button");all.className="primary";all.innerHTML="📚 Tüm Konular<small>"+filter(lev,lesson,"Tüm Konular").length+" soru</small>";all.onclick=()=>start("Tüm Konular");c.appendChild(all);(topics[lesson]||[]).forEach(t=>{let b=document.createElement("button");b.innerHTML="📝 "+t+"<small>"+filter(lev,lesson,t).length+" soru</small>";b.onclick=()=>start(t);c.appendChild(b)})}
+function shuffle(a){for(let x=a.length-1;x;x--){let j=Math.floor(Math.random()*(x+1));[a[x],a[j]]=[a[j],a[x]]}return a}
+function saveProg(){write(K.prog,{lev,lesson,topic,ids:pool.map(id),i,good,bad,mode})}
+function start(t){topic=t;mode="normal";pool=shuffle([...filter(lev,lesson,t)]);if(!pool.length){alert("Bu bölümde henüz soru yok.");return}i=good=bad=0;openQuiz();saveProg();load()}
+function openQuiz(){hide();document.getElementById("quiz").classList.remove("hidden");document.getElementById("meta").textContent=(lev||"Özel Liste")+" • "+(lesson||"")+" • "+topic+" • "+pool.length+" soru"}
+function load(){if(i>=pool.length)return finish();answered=false;let q=pool[i];document.getElementById("num").textContent="Soru "+(i+1)+" / "+pool.length;document.getElementById("qtext").textContent=q.question;document.getElementById("bar").style.width=((i+1)/pool.length*100)+"%";let c=document.getElementById("opts");c.innerHTML="";document.getElementById("fb").className="";document.getElementById("fb").textContent="";document.getElementById("next").classList.add("hidden");saveProg();updateSave();q.options.forEach((o,n)=>{let b=document.createElement("button");b.className="option";b.textContent=String.fromCharCode(65+n)+") "+o;b.onclick=()=>answer(n,b);c.appendChild(b)})}
+function answer(n,b){if(answered)return;answered=true;let q=pool[i],os=document.querySelectorAll(".option");os.forEach(x=>x.disabled=true);let s=read(K.stats,{total:0,correct:0,wrong:0,by:{}});s.total++;s.by[q.lesson]=s.by[q.lesson]||{total:0,correct:0,wrong:0};s.by[q.lesson].total++;if(n===q.answer){b.classList.add("correct");good++;s.correct++;s.by[q.lesson].correct++;feedback("✓ Doğru cevap!",true)}else{b.classList.add("wrong");os[q.answer].classList.add("correct");bad++;s.wrong++;s.by[q.lesson].wrong++;let w=read(K.wrong,[]);if(!w.includes(id(q)))w.push(id(q));write(K.wrong,w);feedback("✗ Yanlış. Doğru cevap: "+String.fromCharCode(65+q.answer)+") "+q.options[q.answer],false)}write(K.stats,s);document.getElementById("next").classList.remove("hidden");document.getElementById("next").textContent=i===pool.length-1?"Testi Bitir ✓":"Sonraki Soru →";saveProg()}
+function feedback(t,ok){let x=document.getElementById("fb");x.textContent=t;x.className="feedback "+(ok?"ok":"bad")}
+function next(){if(!answered)return;i++;load()}
+function finish(){localStorage.removeItem(K.prog);hide();document.getElementById("result").classList.remove("hidden");document.getElementById("rtitle").textContent=(lev||"Özel")+" • "+(lesson||"")+" • "+topic;document.getElementById("rt").textContent=pool.length;document.getElementById("rc").textContent=good;document.getElementById("rw").textContent=bad;document.getElementById("rp").textContent=Math.round(good/pool.length*100)+"%"}
+function repeat(){start(topic)}
+function exitQuiz(){saveProg();home()}
+function bookmark(){let a=read(K.saved,[]),x=id(pool[i]),n=a.indexOf(x);if(n>=0)a.splice(n,1);else a.push(x);write(K.saved,a);updateSave();renderHome()}
+function updateSave(){let b=document.getElementById("save"),x=id(pool[i]);b.textContent=read(K.saved,[]).includes(x)?"★ Kaydedildi":"☆ Soruyu Kaydet"}
+function renderHome(){let s=read(K.stats,{total:0,correct:0,wrong:0,by:{}});stT.textContent=s.total;stC.textContent=s.correct;stW.textContent=s.wrong;stS.textContent=read(K.saved,[]).length;let p=read(K.prog,null),r=document.getElementById("resume");if(p&&p.ids&&p.i<p.ids.length){r.classList.remove("hidden");r.innerHTML="<b>⏸️ Yarım kalan test</b><br>"+p.lev+" • "+p.lesson+" • "+p.topic+"<br>Soru "+(p.i+1)+" / "+p.ids.length+"<div class='actions'><button class='primary' onclick='resume()'>▶️ Kaldığım Yerden Devam Et</button><button onclick='newStart()'>🆕 Baştan Başla</button></div>"}else r.classList.add("hidden")}
+function resume(){let p=read(K.prog,null);if(!p)return;pool=p.ids.map(find).filter(Boolean);lev=p.lev;lesson=p.lesson;topic=p.topic;i=p.i;good=p.good||0;bad=p.bad||0;mode=p.mode||"normal";openQuiz();load()}
+function newStart(){localStorage.removeItem(K.prog);levels()}
+function listPage(type){hide();document.getElementById(type==="saved"?"savedPage":"wrongPage").classList.remove("hidden");let a=read(type==="saved"?K.saved:K.wrong,[]),c=document.getElementById(type==="saved"?"savedList":"wrongList");c.innerHTML="";let q=a.map(find).filter(Boolean);if(!q.length){c.innerHTML="<div class='empty'>Henüz soru yok.</div>";return}q.slice().reverse().forEach((x,n)=>{let d=document.createElement("div");d.className="item";d.innerHTML="<b>"+(n+1)+". "+esc(x.question)+"</b><small>"+x.level+" • "+x.lesson+" • "+x.topic+"</small>";c.appendChild(d)})}
+function savedPage(){listPage("saved")}function wrongPage(){listPage("wrong")}
+function special(type){let a=read(type==="saved"?K.saved:K.wrong,[]).map(find).filter(Boolean);if(!a.length){alert("Bu listede soru yok.");return}mode=type;lev="";lesson="";topic=type==="saved"?"Kaydedilen Sorular":"Yanlış Sorular";pool=shuffle(a);i=good=bad=0;openQuiz();load()}
+function statsPage(){hide();document.getElementById("statsPage").classList.remove("hidden");let s=read(K.stats,{total:0,correct:0,wrong:0,by:{}}),c=document.getElementById("statsBody");c.innerHTML="<div class='stats'><div class='stat'><b>"+s.total+"</b><small>Çözülen</small></div><div class='stat'><b>"+s.correct+"</b><small>Doğru</small></div><div class='stat'><b>"+s.wrong+"</b><small>Yanlış</small></div><div class='stat'><b>"+(s.total?Math.round(s.correct/s.total*100):0)+"%</b><small>Başarı</small></div></div>";lessons.forEach(x=>{let z=s.by[x]||{total:0,correct:0,wrong:0},p=z.total?Math.round(z.correct/z.total*100):0;c.innerHTML+="<div class='item'><b>"+x+" — %"+p+"</b><small>"+z.total+" soru • "+z.correct+" doğru • "+z.wrong+" yanlış</small></div>"})}
+function timerPage(){hide();document.getElementById("timerPage").classList.remove("hidden");document.getElementById("exam").value=localStorage.getItem(K.exam)||"";timer()}
+function setExam(){let x=exam.value;if(!x){alert("Tarih seç.");return}localStorage.setItem(K.exam,x);timer()}
+function timer(){let x=localStorage.getItem(K.exam),c=document.getElementById("count");if(!x){c.textContent="Sınav tarihi seçilmedi.";return}let ms=new Date(x+"T00:00:00")-new Date();if(ms<=0){c.textContent="Sınav tarihi geldi veya geçti.";return}let d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000);c.innerHTML="<b>"+d+" gün</b><br>"+h+" saat "+m+" dakika kaldı"}
+function esc(s){return String(s).replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[x]))}
+setInterval(timer,30000);renderHome();
+</script></body></html>
