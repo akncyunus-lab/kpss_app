@@ -48,7 +48,7 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 --decode > android/app/kpss-release.jks
 
-      - name: Android sürüm ve imza ayarlarını yap
+          - name: Android sürüm ve imza ayarlarını yap
         env:
           VERSION_CODE: ${{ github.run_number }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -80,26 +80,28 @@ jobs:
           )
 
           signing_block = '''
-              signingConfigs {
-                  release {
-                      storeFile file("kpss-release.jks")
-                      storePassword System.getenv("KEYSTORE_PASSWORD")
-                      keyAlias System.getenv("KEY_ALIAS")
-                      keyPassword System.getenv("KEY_PASSWORD")
-                  }
+          signingConfigs {
+              release {
+                  storeFile file("kpss-release.jks")
+                  storePassword System.getenv("KEYSTORE_PASSWORD")
+                  keyAlias System.getenv("KEY_ALIAS")
+                  keyPassword System.getenv("KEY_PASSWORD")
               }
+          }
           '''
 
-          text = text.replace(
-              '    buildTypes {',
-              signing_block + '\n    buildTypes {',
-              1
-          )
+          if "signingConfigs {" not in text:
+              text = text.replace(
+                  "buildTypes {",
+                  signing_block + "\nbuildTypes {",
+                  1
+              )
 
-          text = text.replace(
-              '        release {',
-              '        release {\n            signingConfig signingConfigs.release',
-              1
+          text = re.sub(
+              r'(buildTypes\s*\{\s*release\s*\{)',
+              r'\1\n        signingConfig signingConfigs.release',
+              text,
+              count=1
           )
 
           path.write_text(text)
