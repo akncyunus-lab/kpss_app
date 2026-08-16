@@ -1,0 +1,166 @@
+name: KPSS Cep APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Java kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Bağımlılıkları kur
+        run: npm install
+
+      - name: Web dosyasını hazırla
+        shell: bash
+        run: |
+          set -e
+          mkdir -p www
+          INDEX_FILE="$(find "$GITHUB_WORKSPACE" -maxdepth 2 -type f -iname "index.html" -print -quit)"
+          if [ -z "$INDEX_FILE" ]; then
+            echo "HATA: index.html bulunamadı."
+            exit 1
+          fi
+          echo "Bulunan index.html: $INDEX_FILE"
+          cp "$INDEX_FILE" www/index.html
+          if [ -f "$GITHUB_WORKSPACE/questions.js" ]; then
+            cp "$GITHUB_WORKSPACE/questions.js" www/questions.js
+          fi
+
+      - name: Capacitor paketlerini kontrol et
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Capacitor Android projesini oluştur
+        shell: bash
+        run: |
+          set -e
+          if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
+            npx cap init "KPSS Cep" "com.kpsscep.app" --web-dir www
+          fi
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap copy android
+
+      - name: Release imza anahtarını hazırla
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        shell: bash
+        run: |
+          set -e
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "HATA: KEYSTORE_BASE64 secret bulunamadı."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/kpss-release.jks
+          if [ ! -s android/app/kpss-release.jks ]; then
+            echo "HATA: Keystore dosyası oluşturulamadı."
+            exit 1
+          fi
+
+      - name: Android sürüm ve imza ayarlarını yap
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          path = Path("android/app/build.gradle")
+          text = path.read_text()
+          version_code = os.environ["VERSION_CODE"]
+
+          text, count = re.subn(
+              r'versionCode\s+\d+',
+              f'versionCode {version_code}',
+              text,
+              count=1
+          )
+          if count == 0:
+              text = text.replace(
+                  'defaultConfig {',
+                  f'defaultConfig {{\n        versionCode {version_code}',
+                  1
+              )
+
+          text, count = re.subn(
+              r'versionName\s+"[^"]*"',
+              f'versionName "1.0.{version_code}"',
+              text,
+              count=1
+          )
+          if count == 0:
+              text = text.replace(
+                  f'versionCode {version_code}',
+                  f'versionCode {version_code}\n        versionName "1.0.{version_code}"',
+                  1
+              )
+
+          signing_block = '''
+              signingConfigs {
+                  release {
+                      storeFile file("kpss-release.jks")
+                      storePassword System.getenv("KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("KEY_ALIAS")
+                      keyPassword System.getenv("KEY_PASSWORD")
+                  }
+              }
+          '''
+
+          if 'signingConfigs {' not in text:
+              marker = '    buildTypes {'
+              if marker not in text:
+                  raise SystemExit("HATA: buildTypes bloğu bulunamadı.")
+              text = text.replace(marker, signing_block + '\n' + marker, 1)
+
+          if 'signingConfig signingConfigs.release' not in text:
+              pattern = r'(buildTypes\s*\{\s*release\s*\{)'
+              text, count = re.subn(
+                  pattern,
+                  r'\1\n        signingConfig signingConfigs.release',
+                  text,
+                  count=1
+              )
+              if count == 0:
+                  raise SystemExit("HATA: buildTypes.release bloğu bulunamadı.")
+
+          path.write_text(text)
+          PY
+
+      - name: APK oluştur
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: APK'yı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: KPSS-Cep-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
