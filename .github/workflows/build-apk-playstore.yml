@@ -1,0 +1,139 @@
+name: KPSS Cep Android
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu indir
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Java kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Bağımlılıkları kur
+        run: npm install
+
+      - name: Web dosyasını hazırla
+        shell: bash
+        run: |
+          set -e
+          mkdir -p www
+          INDEX_FILE="$(find "$GITHUB_WORKSPACE" -maxdepth 2 -type f -iname "index.html" -print -quit)"
+          test -n "$INDEX_FILE"
+          cp "$INDEX_FILE" www/index.html
+          if [ -f "$GITHUB_WORKSPACE/questions.js" ]; then cp "$GITHUB_WORKSPACE/questions.js" www/questions.js; fi
+
+      - name: Capacitor paketlerini kontrol et
+        run: npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Capacitor Android projesini oluştur
+        shell: bash
+        run: |
+          set -e
+          if [ ! -f capacitor.config.json ] && [ ! -f capacitor.config.ts ]; then
+            npx cap init "KPSS Cep" "com.kpsscep.app" --web-dir www
+          fi
+          if [ ! -d android ]; then npx cap add android; fi
+          npx cap copy android
+
+      - name: Release imza anahtarını hazırla
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          set -e
+          test -n "$KEYSTORE_BASE64"
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/kpss-release.jks
+          test -s android/app/kpss-release.jks
+
+      - name: Android sürüm, API 36 ve imza ayarlarını yap
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -e
+          python3 - <<'PY'
+          from pathlib import Path
+          import os, re
+          path = Path("android/app/build.gradle")
+          text = path.read_text()
+          vc = os.environ["VERSION_CODE"]
+
+          text = re.sub(r'compileSdkVersion\s+\d+', 'compileSdkVersion 36', text)
+          text = re.sub(r'compileSdk\s+\d+', 'compileSdk 36', text)
+          text = re.sub(r'targetSdkVersion\s+\d+', 'targetSdkVersion 36', text)
+          text = re.sub(r'targetSdk\s+\d+', 'targetSdk 36', text)
+
+          text, n = re.subn(r'versionCode\s+\d+', f'versionCode {vc}', text, count=1)
+          if n == 0:
+              text = text.replace('defaultConfig {', f'defaultConfig {{
+        versionCode {vc}', 1)
+
+          text, n = re.subn(r'versionName\s+"[^"]*"', f'versionName "1.0.{vc}"', text, count=1)
+          if n == 0:
+              text = text.replace(f'versionCode {vc}', f'versionCode {vc}
+        versionName "1.0.{vc}"', 1)
+
+          signing = '''
+              signingConfigs {
+                  release {
+                      storeFile file("kpss-release.jks")
+                      storePassword System.getenv("KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("KEY_ALIAS")
+                      keyPassword System.getenv("KEY_PASSWORD")
+                  }
+              }
+          '''
+          if 'signingConfigs {' not in text:
+              marker = '    buildTypes {'
+              if marker not in text: raise SystemExit("buildTypes bulunamadı")
+              text = text.replace(marker, signing + '
+' + marker, 1)
+
+          if 'signingConfig signingConfigs.release' not in text:
+              text, n = re.subn(r'(buildTypes\s*\{\s*release\s*\{)',
+                                r'
+        signingConfig signingConfigs.release',
+                                text, count=1)
+              if n == 0: raise SystemExit("buildTypes.release bulunamadı")
+          path.write_text(text)
+          PY
+
+      - name: AAB oluştur
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: APK oluştur (telefon testi)
+        working-directory: android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
+
+      - name: AAB ve APK'yı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: KPSS-Cep-Android
+          path: |
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
