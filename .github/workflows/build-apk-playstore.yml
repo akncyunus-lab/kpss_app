@@ -62,37 +62,43 @@ jobs:
           fi
 
           npx cap copy android
-        - name: Uygulama simgesini ayarla
-          shell: bash
-          run: |
-            set -e
 
-            mkdir -p android/app/src/main/res/drawable
-            cp "$GITHUB_WORKSPACE/app-icon.png" android/app/src/main/res/drawable/app_icon.png
+      - name: Uygulama simgesini ayarla
+        shell: bash
+        run: |
+          set -e
 
-            python3 - <<'PY'
-            from pathlib import Path
-            import re
+          if [ ! -f "$GITHUB_WORKSPACE/app-icon.png" ]; then
+            echo "HATA: app-icon.png bulunamadı."
+            exit 1
+          fi
 
-            path = Path("android/app/src/main/AndroidManifest.xml")
-            text = path.read_text()
+          mkdir -p android/app/src/main/res/drawable
+          cp "$GITHUB_WORKSPACE/app-icon.png" android/app/src/main/res/drawable/app_icon.png
 
-            text = re.sub(
-                r'android:icon="@[^"]+"',
-                'android:icon="@drawable/app_icon"',
-                text,
-                count=1
-            )
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
 
-            text = re.sub(
-                r'android:roundIcon="@[^"]+"',
-                'android:roundIcon="@drawable/app_icon"',
-                text,
-                count=1
-            )
+          path = Path("android/app/src/main/AndroidManifest.xml")
+          text = path.read_text()
 
-            path.write_text(text)
-            PY
+          text = re.sub(
+              r'android:icon="@[^"]+"',
+              'android:icon="@drawable/app_icon"',
+              text,
+              count=1
+          )
+
+          text = re.sub(
+              r'android:roundIcon="@[^"]+"',
+              'android:roundIcon="@drawable/app_icon"',
+              text,
+              count=1
+          )
+
+          path.write_text(text)
+          PY
 
       - name: Keystore hazırla
         env:
@@ -192,7 +198,6 @@ jobs:
           }
           '''
 
-          # signingConfigs yoksa android bloğunun hemen içine ekle
           if 'signingConfigs {' not in text:
               marker = 'android {'
               if marker not in text:
@@ -204,7 +209,6 @@ jobs:
                   1
               )
 
-          # release build type'a imzayı bağla
           if 'signingConfig signingConfigs.release' not in text:
               pattern = r'(buildTypes\s*\{\s*release\s*\{)'
               text, n = re.subn(
