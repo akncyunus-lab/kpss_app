@@ -58,6 +58,37 @@ jobs:
             npx cap add android
           fi
           npx cap copy android
+        - name: Uygulama simgesini ayarla
+          shell: bash
+          run: |
+            set -e
+
+            mkdir -p android/app/src/main/res/drawable
+            cp "$GITHUB_WORKSPACE/app-icon.png" android/app/src/main/res/drawable/app_icon.png
+
+            python3 - <<'PY'
+            from pathlib import Path
+            import re
+
+            path = Path("android/app/src/main/AndroidManifest.xml")
+            text = path.read_text()
+
+            text = re.sub(
+                r'android:icon="@[^"]+"',
+                'android:icon="@drawable/app_icon"',
+                text,
+                count=1
+            )
+
+            text = re.sub(
+                r'android:roundIcon="@[^"]+"',
+                'android:roundIcon="@drawable/app_icon"',
+                text,
+                count=1
+            )
+
+            path.write_text(text)
+            PY
 
       - name: Release imza anahtarını hazırla
         env:
