@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPSS Cep</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f3f6fb;
+    color:#172033;
+  }
+  .app{
+    max-width:760px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:18px;
+  }
+  .header{
+    background:linear-gradient(135deg,#173b7a,#2459a8);
+    color:white;
+    border-radius:20px;
+    padding:22px;
+    margin-bottom:16px;
+    box-shadow:0 8px 24px rgba(20,55,110,.18);
+  }
+  .header h1{margin:0 0 6px;font-size:28px}
+  .header p{margin:0;opacity:.9}
+  .card{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:16px;
+    box-shadow:0 5px 18px rgba(25,45,80,.08);
+  }
+  .hidden{display:none!important}
+  .title{font-size:21px;font-weight:700;margin:0 0 14px}
+  .subtitle{color:#687386;margin:0 0 16px}
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  button{
+    border:0;
+    border-radius:14px;
+    padding:15px 14px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    background:#eef3fb;
+    color:#173b7a;
+  }
+  button:hover{filter:brightness(.98)}
+  .primary{background:#2459a8;color:#fff}
+  .secondary{background:#e9eef7;color:#173b7a}
+  .lesson-btn,.topic-btn{
+    min-height:64px;
+    text-align:left;
+  }
+  .lesson-btn span,.topic-btn span{
+    display:block;
+    font-size:13px;
+    font-weight:500;
+    color:#718096;
+    margin-top:5px;
+  }
+  .back{
+    margin-bottom:14px;
+    padding:10px 14px;
+    font-size:14px;
+  }
+  .progress-wrap{
+    background:#e9eef7;
+    height:9px;
+    border-radius:20px;
+    overflow:hidden;
+    margin:10px 0 18px;
+  }
+  .progress{
+    height:100%;
+    width:0;
+    background:#2459a8;
+    transition:width .25s;
+  }
+  .question-number{
+    color:#2459a8;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .question{
+    font-size:20px;
+    line-height:1.45;
+    font-weight:700;
+    white-space:pre-line;
+    margin-bottom:18px;
+  }
+  .options{display:grid;gap:11px}
+  .option{
+    background:#f5f7fb;
+    border:2px solid #e3e8f0;
+    color:#172033;
+    text-align:left;
+    font-weight:600;
+  }
+  .option:hover{background:#edf3ff}
+  .option.correct{
+    background:#dff6e6;
+    border-color:#29a354;
+    color:#176b36;
+  }
+  .option.wrong{
+    background:#fde3e3;
+    border-color:#d94848;
+    color:#9d2222;
+  }
+  .option:disabled{cursor:default}
+  .feedback{
+    margin-top:15px;
+    padding:13px 15px;
+    border-radius:12px;
+    font-weight:700;
+    display:none;
+  }
+  .feedback.correct{display:block;background:#e7f8ec;color:#176b36}
+  .feedback.wrong{display:block;background:#fff0f0;color:#9d2222}
+  .actions{display:flex;gap:10px;margin-top:16px}
+  .actions button{flex:1}
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin:15px 0;
+  }
+  .stat{
+    background:#f4f7fb;
+    border-radius:13px;
+    padding:13px;
+    text-align:center;
+  }
+  .stat strong{display:block;font-size:22px}
+  .stat small{color:#687386}
+  .explain{line-height:1.65;font-size:15px}.explain h3{margin-top:0}.explain ul{padding-left:20px}.actions span{display:block;font-size:12px;font-weight:500;margin-top:4px}.empty{
+    padding:18px;
+    background:#fff6df;
+    color:#775a12;
+    border-radius:12px;
+    line-height:1.5;
+  }
+
+  .daily-fact{
+    background:linear-gradient(135deg,#fff8e8,#f3f7ff);
+    border:1px solid #e7edf7;
+    border-radius:18px;
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 5px 18px rgba(25,45,80,.06);
+  }
+  .daily-fact-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .daily-fact-label{
+    color:#2459a8;
+    font-weight:800;
+    font-size:15px;
+  }
+  .daily-fact-category{
+    background:#e8eef9;
+    color:#173b7a;
+    border-radius:999px;
+    padding:6px 10px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .daily-fact-question{
+    font-size:17px;
+    line-height:1.45;
+    font-weight:700;
+    margin:0 0 12px;
+  }
+  .daily-fact-answer{
+    display:none;
+    background:white;
+    border-radius:12px;
+    padding:12px 14px;
+    color:#26354d;
+    line-height:1.5;
+    margin-bottom:12px;
+  }
+  .daily-fact-answer.show{display:block}
+  .daily-fact-answer strong{color:#2459a8}
+  .daily-fact button{
+    width:100%;
+    padding:11px 14px;
+    font-size:14px;
+  }
+
+  .home-tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+  .home-tool{background:white;border-radius:16px;padding:14px;box-shadow:0 5px 18px rgba(25,45,80,.08);text-align:left}
+  .home-tool strong{display:block;color:#173b7a;font-size:15px;margin-bottom:5px}
+  .home-tool span{display:block;color:#687386;font-size:12px;line-height:1.35}
+  .home-tool button{width:100%;margin-top:9px;padding:10px;font-size:13px}
+  .resume-card{border:2px solid #dbe7fb;background:linear-gradient(135deg,#f7faff,#fff);}
+  .resume-card .resume-title{font-size:17px;font-weight:800;color:#173b7a;margin-bottom:5px}
+  .resume-card .resume-meta{font-size:13px;color:#687386;line-height:1.5}
+  .quiz-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+  .timer{background:#173b7a;color:#fff;border-radius:999px;padding:7px 12px;font-weight:800;font-size:14px;min-width:72px;text-align:center}
+  .timer.warning{background:#b7791f}
+  .timer.danger{background:#c53030}
+  .bookmark-btn{width:100%;margin-top:12px;background:#fff4cf;color:#765b00;border:1px solid #f0d47a}
+  .bookmark-btn.saved{background:#e7f8ec;color:#176b36;border-color:#8bd3a0}
+  .list-item{background:#f5f7fb;border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:10px}
+  .list-item strong{display:block;color:#173b7a;margin-bottom:6px}
+  .list-item p{margin:0 0 8px;line-height:1.45}
+  .list-item small{color:#718096}
+  .list-item .actions{margin-top:10px}
+  .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+  .mini-stat{background:#f4f7fb;border-radius:12px;padding:10px;text-align:center}
+  .mini-stat strong{display:block;font-size:18px;color:#173b7a}
+  .mini-stat small{color:#687386;font-size:11px}
+  @media(max-width:520px){
+    .grid{grid-template-columns:1fr}
+    .app{padding:12px}
+    .header h1{font-size:24px}
+    .question{font-size:18px}
+    .home-tools{grid-template-columns:1fr}
+    .mini-stats{grid-template-columns:repeat(2,1fr)}
+  }
+
+  body{padding-bottom:92px}
+  .home-header{background:#fff;border-radius:24px;padding:20px 22px;margin-bottom:16px;box-shadow:0 6px 20px rgba(25,45,80,.08);display:flex;align-items:center;gap:16px}
+  .home-header .logo{font-size:52px;line-height:1}
+  .home-brand{flex:1}.home-brand h1{margin:0;font-size:38px;letter-spacing:-1.2px;color:#172033}.home-brand h1 span{color:#2459a8}.home-brand p{margin:6px 0 0;color:#687386;font-size:16px;line-height:1.35}
+  .bell-btn{width:58px;height:58px;border-radius:50%;background:#fff;box-shadow:0 4px 16px rgba(25,45,80,.1);font-size:28px;padding:0}
+  .countdown-card{background:linear-gradient(135deg,#2459a8,#2f6bc4);color:#fff;border-radius:24px;padding:20px 24px;margin-bottom:16px;box-shadow:0 8px 24px rgba(36,89,168,.2)}
+  .countdown-row{display:flex;align-items:center;gap:18px}.countdown-icon{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:38px;flex:none}.countdown-label{font-size:16px;opacity:.9}.countdown-date{font-size:12px;opacity:.75;margin-top:5px}.countdown-values{margin-left:auto;display:flex;align-items:center;gap:14px}.countdown-divider{width:1px;height:76px;background:rgba(255,255,255,.45)}.count-unit{min-width:52px;text-align:center}.count-unit strong{display:block;font-size:27px;line-height:1.1}.count-unit small{font-size:10px;opacity:.9}.count-set{margin-top:14px;width:100%;background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);font-size:13px;padding:10px}
+  .section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.section-head h2{margin:0;font-size:24px}.section-head button{background:none;padding:4px;color:#2459a8;font-size:15px}
+  .home-stats{background:#fff;border-radius:24px;padding:20px;margin-bottom:16px;box-shadow:0 5px 18px rgba(25,45,80,.08)}.stats-five{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stats-five .stat{padding:12px 7px}.stats-five .stat strong{font-size:23px}.success-bar{height:10px;background:#e5e9ef;border-radius:20px;overflow:hidden;margin-top:13px}.success-fill{height:100%;width:0;background:#2459a8}.success-line{margin-top:8px;color:#687386;font-size:13px}
+  .home-hero-action{background:#eef5ff;border:1px solid #b9d2f7;border-radius:24px;padding:25px;text-align:center;margin-bottom:16px;cursor:pointer}.home-hero-action .big-icon{font-size:50px}.home-hero-action h2{margin:8px 0 5px;font-size:24px}.home-hero-action p{margin:0;color:#718096;font-size:15px}
+  .two-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.action-card{border-radius:22px;padding:24px 16px;text-align:center;border:1px solid #d7e5f2;min-height:150px;cursor:pointer}.action-card.resume{background:#f0fff7}.action-card.restart{background:#fffaf0}.action-card .big-icon{font-size:48px}.action-card strong{display:block;font-size:21px;margin:7px 0}.action-card span{display:block;color:#718096;font-size:14px;line-height:1.35}
+  .utility-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}.utility-card{background:#fff;border-radius:22px;padding:22px 14px;text-align:center;border:1px solid #e1e6ee;cursor:pointer;box-shadow:0 5px 18px rgba(25,45,80,.04)}.utility-card.wrong{background:#fff1f1;border-color:#f2cccc}.utility-card.retry{background:#f8f0ff;border-color:#dfc9f5}.utility-card .big-icon{font-size:48px}.utility-card strong{display:block;font-size:20px;margin:7px 0}.badge-count{display:inline-block;background:#edf3ff;color:#2459a8;border-radius:999px;padding:5px 12px;font-weight:800}
+  .lesson-success{background:#fff;border-radius:24px;padding:20px;margin-bottom:16px;box-shadow:0 5px 18px rgba(25,45,80,.08)}.lesson-success-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.lesson-success-item{background:#f7f9fc;border:1px solid #e1e6ee;border-radius:16px;padding:14px}.lesson-success-item strong{display:block;font-size:15px;margin-bottom:8px}.lesson-success-item .pct{font-size:19px;font-weight:800}.lesson-success-item .bar{height:7px;background:#e3e8ef;border-radius:10px;margin-top:7px;overflow:hidden}.lesson-success-item .bar i{display:block;height:100%;background:#2459a8;width:0}
+  .bottom-nav{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);width:min(720px,calc(100% - 24px));background:#fff;border-radius:24px;padding:9px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;box-shadow:0 8px 28px rgba(25,45,80,.18);z-index:100}.bottom-nav button{background:transparent;padding:7px 2px;color:#687386;font-size:11px;line-height:1.1}.bottom-nav button .nav-icon{display:block;font-size:22px;margin-bottom:4px}.bottom-nav button.active{color:#2459a8}
+  .settings-card label{display:block;font-weight:700;color:#173b7a;margin-bottom:7px}.settings-card input{width:100%;padding:14px;border:2px solid #e1e6ee;border-radius:14px;font-size:17px;margin-bottom:12px}.settings-note{font-size:13px;color:#687386;line-height:1.5}.date-preview{background:#eef5ff;border-radius:14px;padding:13px;color:#173b7a;margin:12px 0;font-weight:700}
+  .stats-detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.detail-box{background:#f5f7fb;border-radius:16px;padding:16px;text-align:center}.detail-box strong{display:block;font-size:26px;color:#173b7a}.detail-box small{color:#687386}
+  @media(max-width:520px){.home-header{padding:18px}.home-brand h1{font-size:32px}.home-header .logo{font-size:44px}.countdown-row{gap:11px}.countdown-icon{width:58px;height:58px;font-size:30px}.countdown-values{gap:7px}.countdown-divider{height:65px}.count-unit{min-width:42px}.count-unit strong{font-size:21px}.stats-five{gap:6px}.stats-five .stat strong{font-size:19px}.stats-five .stat small{font-size:10px}.two-actions,.utility-grid,.lesson-success-grid{gap:10px}.action-card{padding:18px 9px;min-height:145px}.action-card strong{font-size:18px}.utility-card{padding:18px 9px}.utility-card strong{font-size:17px}.bottom-nav button{font-size:9px}.bottom-nav button .nav-icon{font-size:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div id="homeView">
+    <div class="home-header">
+      <div class="logo">📚</div>
+      <div class="home-brand">
+        <h1>KPSS <span>Cep</span></h1>
+        <p>Çalış • Kaydet • Yanlışlarını tekrar et •<br>Kaldığın yerden devam et</p>
+      </div>
+      <button class="bell-btn" type="button" onclick="openDailyFactFocus()">🔔</button>
+    </div>
+
+    <section class="countdown-card">
+      <div class="countdown-row">
+        <div class="countdown-icon">📅</div>
+        <div>
+          <div class="countdown-label">KPSS'ye Kalan Süre</div>
+          <div id="examDateLabel" class="countdown-date">Sınav tarihi belirlenmedi</div>
+        </div>
+        <div class="countdown-values">
+          <div class="countdown-divider"></div>
+          <div class="count-unit"><strong id="countDays">—</strong><small>GÜN</small></div>
+          <div class="count-unit"><strong id="countHours">—</strong><small>SAAT</small></div>
+          <div class="count-unit"><strong id="countMinutes">—</strong><small>DAKİKA</small></div>
+          <div class="count-unit"><strong id="countSeconds">—</strong><small>SANİYE</small></div>
+        </div>
+      </div>
+      <button class="count-set" type="button" onclick="openExamSettings()">📅 Sınav Tarihini Ayarla</button>
+    </section>
+
+    <section class="home-stats">
+      <div class="section-head"><h2>📊 Genel İstatistikler</h2><button type="button" onclick="openStatsScreen()">Tümünü Gör ›</button></div>
+      <div class="stats-five">
+        <div class="stat"><strong id="statSolved">0</strong><small>Çözülen</small></div>
+        <div class="stat"><strong id="statCorrect">0</strong><small>Doğru</small></div>
+        <div class="stat"><strong id="statWrong">0</strong><small>Yanlış</small></div>
+        <div class="stat"><strong id="statSaved">0</strong><small>Kaydedilen</small></div>
+        <div class="stat"><strong id="statSuccess">0%</strong><small>Başarı</small></div>
+      </div>
+      <div class="success-bar"><div id="successFill" class="success-fill"></div></div>
+      <div id="successLine" class="success-line">Doğru: %0 • Yanlış: %0</div>
+    </section>
+
+    <!-- GÜNÜN GENEL KÜLTÜR BİLGİSİ -->
+    <section id="dailyFactCard" class="daily-fact">
+      <div class="daily-fact-top">
+        <div class="daily-fact-label">🧠 Günün Genel Kültür Bilgisi</div>
+        <div id="dailyFactCategory" class="daily-fact-category">Genel Kültür</div>
+      </div>
+      <p id="dailyFactQuestion" class="daily-fact-question"></p>
+      <div id="dailyFactAnswer" class="daily-fact-answer"></div>
+      <button id="dailyFactButton" class="primary" type="button" onclick="toggleDailyFact()">💡 Cevabı Göster</button>
+    </section>
+
+    <section class="home-hero-action" onclick="openLevelSelection()">
+      <div class="big-icon">🎯</div>
+      <h2>Soru Çöz</h2>
+      <p>Seviye → Ders → Konu</p>
+    </section>
+
+    <section class="two-actions">
+      <div class="action-card resume" onclick="resumeQuiz()"><div class="big-icon">▶️</div><strong>Kaldığım Yerden Devam Et</strong><span id="resumeMetaHome">Devam eden test yok</span></div>
+      <div class="action-card restart" onclick="startFresh()"><div class="big-icon">🔄</div><strong>Baştan Başla</strong><span>Yeni bir test başlat</span></div>
+    </section>
+
+    <section class="utility-grid">
+      <div class="utility-card" onclick="openSavedScreen()"><div class="big-icon">⭐</div><strong>Kaydettiklerim</strong><span id="savedCountHome" class="badge-count">0</span></div>
+      <div class="utility-card wrong" onclick="openWrongScreen()"><div class="big-icon">❌</div><strong>Yanlışlarım</strong><span id="wrongCountHome" class="badge-count">0</span></div>
+      <div class="utility-card retry" onclick="startWrongQuiz()"><div class="big-icon">🔄</div><strong>Yanlışları Tekrar Çöz</strong><span id="wrongRetryCount" class="badge-count">0</span></div>
+    </section>
+
+    <section class="lesson-success">
+      <div class="section-head"><h2>📚 Derslere Göre Başarı</h2><button type="button" onclick="openStatsScreen()">Tümünü Gör ›</button></div>
+      <div id="lessonSuccessGrid" class="lesson-success-grid"></div>
+    </section>
+  </div>
+
+  <!-- SEVİYE -->
+  <section id="levelScreen" class="card">
+    <h2 class="title">🎯 KPSS Seviyeni Seç</h2>
+    <p class="subtitle">Sorular seçtiğin seviyeye göre filtrelenecek.</p>
+    <div class="grid">
+      <button class="lesson-btn" onclick="selectLevel('Ortaöğretim')">
+        🏫 Ortaöğretim
+        <span>Ortaöğretim düzeyi</span>
+      </button>
+      <button class="lesson-btn" onclick="selectLevel('Ön Lisans')">
+        🎓 Ön Lisans
+        <span>Ön lisans düzeyi</span>
+      </button>
+      <button class="lesson-btn" onclick="selectLevel('Lisans')">
+        🎓 Lisans
+        <span>Lisans düzeyi</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- DERS -->
+  <section id="lessonScreen" class="card hidden">
+    <button class="secondary back" onclick="goToLevel()">← Seviyelere Dön</button>
+    <h2 class="title">📚 Ders Seç</h2>
+    <p id="selectedLevelText" class="subtitle"></p>
+    <div id="lessonList" class="grid"></div>
+  </section>
+
+  <!-- KONU -->
+  <section id="topicScreen" class="card hidden">
+    <button class="secondary back" onclick="goToLessons()">← Derslere Dön</button>
+    <h2 id="topicTitle" class="title">📖 Konu Seç</h2>
+    <p id="topicSubtitle" class="subtitle"></p>
+    <div id="topicList" class="grid"></div>
+  </section>
+
+  <!-- KONU SEÇİMİ -->
+  <section id="topicActionScreen" class="card hidden">
+    <button class="secondary back" onclick="goToTopics()">← Konulara Dön</button>
+    <h2 id="actionTitle" class="title">📚 Konu</h2>
+    <p id="actionSubtitle" class="subtitle"></p>
+    <div class="actions">
+      <button class="primary" onclick="openExplanation()">📖 Konu Anlatımı<span>Konuyu öğren ve tekrar et</span></button>
+      <button onclick="startQuiz(selectedTopic)">📝 Test Çöz<span id="topicQuestionCount">Soruları çöz</span></button>
+    </div>
+  </section>
+
+  <!-- KONU ANLATIMI -->
+  <section id="explanationScreen" class="card hidden">
+    <button class="secondary back" onclick="goToTopicAction()">← Konuya Dön</button>
+    <h2 id="explanationTitle" class="title">📖 Konu Anlatımı</h2>
+    <p id="explanationSubtitle" class="subtitle"></p>
+    <div id="explanationBody" class="explain"></div>
+    <div class="actions"><button class="primary" onclick="startQuiz(selectedTopic)">📝 Bu Konudan Test Çöz</button></div>
+  </section>
+
+  <!-- SINAV -->
+  <section id="quizScreen" class="card hidden">
+    <button class="secondary back" onclick="goToTopics()">← Konulara Dön</button>
+    <div class="quiz-top">
+      <div id="quizMeta" class="subtitle"></div>
+      <div id="quizTimer" class="timer">⏱️ 00:00</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div id="progressBar" class="progress"></div>
+    </div>
+
+    <div id="questionNumber" class="question-number"></div>
+    <div id="questionText" class="question"></div>
+    <div id="options" class="options"></div>
+
+    <div id="feedback" class="feedback"></div>
+    <button id="bookmarkBtn" class="bookmark-btn" onclick="toggleCurrentBookmark()">🔖 Soruyu Kaydet</button>
+
+    <div class="actions">
+      <button id="nextBtn" class="primary hidden" onclick="nextQuestion()">Sonraki Soru →</button>
+    </div>
+  </section>
+
+  <!-- KAYDEDİLEN SORULAR -->
+  <section id="savedScreen" class="card hidden">
+    <button class="secondary back" onclick="goHome()">← Ana Sayfaya Dön</button>
+    <h2 class="title">🔖 Kaydedilen Sorular</h2>
+    <p class="subtitle">Daha sonra tekrar bakmak istediğin sorular.</p>
+    <div id="savedList"></div>
+  </section>
+
+  <!-- YANLIŞ SORULAR -->
+  <section id="wrongScreen" class="card hidden">
+    <button class="secondary back" onclick="goHome()">← Ana Sayfaya Dön</button>
+    <h2 class="title">❌ Yanlışlarım</h2>
+    <p class="subtitle">Yanlış yaptığın sorular burada otomatik olarak birikir.</p>
+    <div id="wrongList"></div>
+  </section>
+
+  <!-- İSTATİSTİKLER -->
+  <section id="statsScreen" class="card hidden">
+    <button class="secondary back" onclick="goHome()">← Ana Sayfaya Dön</button>
+    <h2 class="title">📊 İstatistikler</h2>
+    <div class="stats-detail-grid">
+      <div class="detail-box"><strong id="detailSolved">0</strong><small>Çözülen</small></div>
+      <div class="detail-box"><strong id="detailCorrect">0</strong><small>Doğru</small></div>
+      <div class="detail-box"><strong id="detailWrong">0</strong><small>Yanlış</small></div>
+      <div class="detail-box"><strong id="detailSuccess">0%</strong><small>Başarı</small></div>
+    </div>
+    <div class="lesson-success" style="margin-top:16px;box-shadow:none;padding:0">
+      <h3>📚 Ders Bazında Başarı</h3>
+      <div id="detailLessonGrid" class="lesson-success-grid"></div>
+    </div>
+  </section>
+
+  <!-- SINAV TARİHİ -->
+  <section id="examSettingsScreen" class="card hidden settings-card">
+    <button class="secondary back" onclick="goHome()">← Ana Sayfaya Dön</button>
+    <h2 class="title">📅 Sınav Tarihi</h2>
+    <p class="subtitle">Ana sayfadaki geri sayımın doğru çalışması için KPSS tarihini buradan belirle.</p>
+    <label for="examDateInput">KPSS tarihi</label>
+    <input id="examDateInput" type="datetime-local">
+    <div id="examPreview" class="date-preview">Henüz tarih seçilmedi.</div>
+    <button class="primary" style="width:100%" onclick="saveExamDate()">💾 Tarihi Kaydet</button>
+    <button class="secondary" style="width:100%;margin-top:10px" onclick="clearExamDate()">🗑️ Tarihi Temizle</button>
+    <p class="settings-note">Not: Tarih cihazında saklanır. İnternet bağlantısı gerektirmez; sayaç cihazın saatine göre çalışır.</p>
+  </section>
+
+  <!-- SONUÇ -->
+  <section id="resultScreen" class="card hidden">
+    <h2 class="title">🎉 Test Tamamlandı</h2>
+    <p id="resultTitle" class="subtitle"></p>
+
+    <div class="stats">
+      <div class="stat"><strong id="totalStat">0</strong><small>Toplam</small></div>
+      <div class="stat"><strong id="correctStat">0</strong><small>Doğru</small></div>
+      <div class="stat"><strong id="wrongStat">0</strong><small>Yanlış</small></div>
+    </div>
+
+    <div class="actions">
+      <button class="primary" onclick="repeatQuiz()">🔄 Tekrar Çöz</button>
+      <button class="secondary" onclick="goToTopics()">📖 Konular</button>
+    </div>
+  </section>
+
+
+  <nav id="bottomNav" class="bottom-nav">
+    <button class="active" onclick="goHome()"><span class="nav-icon">⌂</span>Ana Sayfa</button>
+    <button onclick="openLevelSelection()"><span class="nav-icon">▣</span>Soru Çöz</button>
+    <button onclick="openStatsScreen()"><span class="nav-icon">▥</span>İstatistikler</button>
+    <button onclick="openExamSettings()"><span class="nav-icon">⏱️</span>Sınav Tarihi</button>
+    <button onclick="openSavedScreen()"><span class="nav-icon">☆</span>Kaydettiklerim</button>
+  </nav>
+</div>
+
+<script src="questions.js"></script>
+<script>
+"use strict";
+
+/*
+  KPSS Cep - yeni akış:
+  Seviye → Ders → Konu → Sorular
+
+  questions.js içindeki mevcut kayıtlar:
+  question, options, answer, level, lesson
+
+  Yeni soru bankasında ayrıca:
+  topic: "Problemler"
+  gibi bir alan kullanılabilir.
+
+  topic alanı olmayan mevcut sorular "Tüm Konular" altında çalışmaya devam eder.
+*/
+
+let selectedLevel = "";
+let selectedLesson = "";
+let selectedTopic = "";
+
+let questionPool = [];
+let currentQuestion = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let answered = false;
+let selectedAnswerIndex = null;
+let quizStartedAt = 0;
+let timerInterval = null;
+
+const STORAGE = {
+  saved: "kpssCep_savedQuestions_v1",
+  wrong: "kpssCep_wrongQuestions_v1",
+  progress: "kpssCep_quizProgress_v1",
+  stats: "kpssCep_stats_v1",
+  examDate: "kpssCep_examDate_v1"
+};
+
+const LESSONS = [
+  {name:"Türkçe", icon:"📖"},
+  {name:"Matematik", icon:"➗"},
+  {name:"Tarih", icon:"🏛️"},
+  {name:"Coğrafya", icon:"🌍"},
+  {name:"Vatandaşlık", icon:"⚖️"}
+];
+const ALAN_LESSONS = [
+  {name:"Hukuk",icon:"⚖️"},{name:"İktisat",icon:"📈"},{name:"Maliye",icon:"💰"},
+  {name:"Muhasebe",icon:"🧾"},{name:"İşletme",icon:"🏢"},{name:"Kamu Yönetimi",icon:"🏛️"},
+  {name:"Uluslararası İlişkiler",icon:"🌐"},{name:"Çalışma Ekonomisi",icon:"👥"}
+];
+
+/*
+  Konular daha sonra soru bankasındaki topic alanlarıyla eşleşecek.
+  Şimdilik "Tüm Konular" daima çalışır.
+*/
+const TOPICS = {
+  "Türkçe": [
+    "Sözcükte Anlam",
+    "Cümlede Anlam",
+    "Paragraf",
+    "Dil Bilgisi",
+    "Ses Bilgisi",
+    "Yazım Kuralları",
+    "Noktalama İşaretleri",
+    "Anlatım Bozuklukları"
+  ],
+  "Matematik": [
+    "Temel Kavramlar",
+    "Sayılar",
+    "Bölünebilme",
+    "Rasyonel Sayılar",
+    "Oran-Orantı",
+    "Problemler",
+    "Kümeler",
+    "Fonksiyonlar",
+    "Grafik ve Tablo",
+    "Geometri"
+  ],
+  "Tarih": [
+    "İslamiyet Öncesi Türk Tarihi",
+    "İlk Türk-İslam Devletleri",
+    "Osmanlı Tarihi",
+    "Osmanlı Kültür ve Medeniyeti",
+    "Millî Mücadele",
+    "Atatürk İlke ve İnkılapları",
+    "Cumhuriyet Dönemi",
+    "Çağdaş Türk ve Dünya Tarihi"
+  ],
+  "Coğrafya": [
+    "Türkiye'nin Coğrafi Konumu",
+    "İklim ve Bitki Örtüsü",
+    "Yer Şekilleri",
+    "Nüfus ve Yerleşme",
+    "Tarım",
+    "Hayvancılık",
+    "Madenler ve Enerji",
+    "Sanayi",
+    "Ulaşım",
+    "Bölgeler"
+  ],
+  "Vatandaşlık": [
+    "Hukukun Temel Kavramları",
+    "Anayasa",
+    "Temel Hak ve Özgürlükler",
+    "Yasama",
+    "Yürütme",
+    "Yargı",
+    "İdare Hukuku",
+    "Seçimler"
+  ]
+};
+
+TOPICS["Hukuk"]=["Anayasa Hukuku","İdare Hukuku","Medeni Hukuk","Borçlar Hukuku","Ceza Hukuku","Ticaret Hukuku","İcra ve İflas Hukuku"];
+TOPICS["İktisat"]=["İktisada Giriş","Mikro İktisat","Makro İktisat","Para-Banka","Uluslararası İktisat","Türkiye Ekonomisi","İktisadi Büyüme ve Kalkınma"];
+TOPICS["Maliye"]=["Maliye Teorisi","Kamu Harcamaları","Kamu Gelirleri","Kamu Borçları","Bütçe","Vergi Hukuku","Maliye Politikası"];
+TOPICS["Muhasebe"]=["Genel Muhasebe","Mali Tablolar","Maliyet Muhasebesi","Finansal Muhasebe","Muhasebe Standartları"];
+TOPICS["İşletme"]=["İşletme Yönetimi","Pazarlama","Finansal Yönetim","Üretim Yönetimi","İnsan Kaynakları","Örgütsel Davranış"];
+TOPICS["Kamu Yönetimi"]=["Yönetim Bilimi","Siyaset Bilimi","Kentleşme ve Çevre Sorunları","Türk İdare Tarihi","Kamu Politikası"];
+TOPICS["Uluslararası İlişkiler"]=["Uluslararası İlişkilere Giriş","Uluslararası Hukuk","Uluslararası Örgütler","Siyasi Tarih","Uluslararası Politika"];
+TOPICS["Çalışma Ekonomisi"]=["Çalışma Ekonomisine Giriş","İş Hukuku","Sosyal Güvenlik Hukuku","Çalışma İlişkileri","İşgücü Piyasaları"];
+
+function getQuestionsArray(){
+  // questions.js dosyasında const questions olarak tanımlanan soru bankasını kullan.
+  if (typeof questions !== "undefined" && Array.isArray(questions)) return questions;
+  if (Array.isArray(window.questions)) return window.questions;
+  return [];
+}
+
+function filterQuestions(level, lesson, topic){
+  const all = getQuestionsArray();
+
+  let result = all.filter(q =>
+    q &&
+    q.level === level &&
+    q.lesson === lesson
+  );
+
+  /*
+    Mevcut soru bankasında topic alanı yoksa
+    "Tüm Konular" bütün soruları gösterir.
+  */
+  if(topic !== "Tüm Konular"){
+    const withTopic = result.filter(q => q.topic === topic);
+
+    /*
+      Henüz topic alanları eklenmemişse kullanıcı boş ekran görmesin.
+      Bu durumda konuya ait soru bulunmadığını açıkça gösteriyoruz.
+    */
+    return withTopic;
+  }
+
+  return result;
+}
+
+function selectLevel(level){
+  setHomeSections(false);
+  selectedLevel = level;
+  selectedLesson = "";
+  selectedTopic = "";
+
+  document.getElementById("levelScreen").classList.add("hidden");
+  document.getElementById("lessonScreen").classList.remove("hidden");
+
+  document.getElementById("selectedLevelText").textContent =
+    "Seçilen seviye: " + level;
+
+  renderLessons();
+}
+
+function renderLessons(){
+  const container = document.getElementById("lessonList");
+  container.innerHTML = "";
+
+  const lessonSet = selectedLevel === "Lisans" ? LESSONS.concat(ALAN_LESSONS) : LESSONS;
+  lessonSet.forEach(lesson => {
+    const count = getQuestionsArray().filter(q =>
+      q && q.level === selectedLevel && q.lesson === lesson.name
+    ).length;
+
+    const btn = document.createElement("button");
+    btn.className = "lesson-btn";
+    btn.innerHTML =
+      lesson.icon + " " + lesson.name +
+      "<span>" + count + " soru bankada</span>";
+
+    btn.onclick = () => selectLesson(lesson.name);
+    container.appendChild(btn);
+  });
+}
+
+function selectLesson(lesson){
+  selectedLesson = lesson;
+  selectedTopic = "";
+
+  document.getElementById("lessonScreen").classList.add("hidden");
+  document.getElementById("topicScreen").classList.remove("hidden");
+
+  document.getElementById("topicTitle").textContent =
+    "📖 " + lesson + " Konuları";
+
+  document.getElementById("topicSubtitle").textContent =
+    selectedLevel + " • " + lesson;
+
+  renderTopics();
+}
+
+function renderTopics(){
+  const container = document.getElementById("topicList");
+  container.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.className = "topic-btn primary";
+  allBtn.innerHTML =
+    "📚 Tüm Konular" +
+    "<span>Bu dersin tüm mevcut sorularını çöz</span>";
+  allBtn.onclick = () => { selectedTopic = "Tüm Konular"; openTopicAction(); };
+  container.appendChild(allBtn);
+
+  (TOPICS[selectedLesson] || []).forEach(topic => {
+    const count = filterQuestions(selectedLevel, selectedLesson, topic).length;
+
+    const btn = document.createElement("button");
+    btn.className = "topic-btn";
+    btn.innerHTML =
+      "📝 " + topic +
+      "<span>" + count + " soru</span>";
+
+    btn.onclick = () => { selectedTopic = topic; openTopicAction(); };
+    container.appendChild(btn);
+  });
+}
+
+const EXPLANATIONS={"Sözcükte Anlam":"<h3>Sözcükte Anlam</h3><p>Gerçek, yan, mecaz ve terim anlam; eş-zıt anlam, genel-özel ve bağlam ilişkilerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Cümlede Anlam":"<h3>Cümlede Anlam</h3><p>Neden-sonuç, amaç-sonuç, koşul, çıkarım, olasılık, karşılaştırma ve öznel-nesnel yargıları kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Paragraf":"<h3>Paragraf</h3><p>Ana düşünce, yardımcı düşünce, yapı, anlatım biçimleri ve paragrafın anlam bütünlüğünü inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Dil Bilgisi":"<h3>Dil Bilgisi</h3><p>Sözcük türleri, fiiller, cümlenin ögeleri, fiilimsi ve temel dil bilgisi kurallarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Ses Bilgisi":"<h3>Ses Bilgisi</h3><p>Ünlü-ünsüz özellikleri ile ünlü daralması, düşmesi ve ünsüz değişmeleri gibi ses olaylarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yazım Kuralları":"<h3>Yazım Kuralları</h3><p>Birleşik kelimeler, ayrı-bitişik yazım, büyük harfler, sayı ve özel adların yazımını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Noktalama İşaretleri":"<h3>Noktalama İşaretleri</h3><p>Nokta, virgül, noktalı virgül, iki nokta, tırnak, kesme ve diğer işaretlerin kullanımını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Anlatım Bozuklukları":"<h3>Anlatım Bozuklukları</h3><p>Anlam ve yapı bakımından anlatımı bozan gereksiz sözcük, uyumsuzluk, yanlış bağlama ve mantık hatalarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Temel Kavramlar":"<h3>Temel Kavramlar</h3><p>Sayı kümeleri, işlem özellikleri, mutlak değer, tek-çiftlik ve temel sayı ilişkilerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Sayılar":"<h3>Sayılar</h3><p>Tam, doğal, rasyonel ve reel sayılarla işlemler ve sayı özelliklerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Bölünebilme":"<h3>Bölünebilme</h3><p>Bölünebilme kuralları ve sayıların bölenleriyle ilgili problem çözme tekniklerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Rasyonel Sayılar":"<h3>Rasyonel Sayılar</h3><p>Kesirli ifadeler, sıralama, dört işlem ve rasyonel sayı problemlerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Oran-Orantı":"<h3>Oran-Orantı</h3><p>Oran, orantı, doğru-ters orantı ve bunların problem uygulamalarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Problemler":"<h3>Problemler</h3><p>Yaş, yüzde, kâr-zarar, hız, işçi-havuz ve sayısal problem türlerinde model kurmayı geliştirir.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kümeler":"<h3>Kümeler</h3><p>Küme gösterimleri, alt kümeler, birleşim-kesişim, fark ve Kartezyen çarpımı kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Fonksiyonlar":"<h3>Fonksiyonlar</h3><p>Fonksiyon kavramı, tanım-değer kümeleri, bileşke, ters ve grafik ilişkilerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Grafik ve Tablo":"<h3>Grafik ve Tablo</h3><p>Tablo ve grafiklerden veri okuma, karşılaştırma, oranlama ve yorumlama becerisini geliştirir.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Geometri":"<h3>Geometri</h3><p>Açı, üçgen, dörtgen, çokgen, çember ve alan-hacim ilişkilerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İslamiyet Öncesi Türk Tarihi":"<h3>İslamiyet Öncesi Türk Tarihi</h3><p>İlk Türk devletleri, siyasi yapı, kültür, teşkilat ve Orta Asya Türk tarihinin temel gelişmelerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İlk Türk-İslam Devletleri":"<h3>İlk Türk-İslam Devletleri</h3><p>Karahanlı, Gazneli, Büyük Selçuklu ve diğer Türk-İslam devletlerinin siyasi ve kültürel özelliklerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Osmanlı Tarihi":"<h3>Osmanlı Tarihi</h3><p>Osmanlı kuruluşundan dağılma dönemine kadar siyasi olaylar, savaşlar, antlaşmalar ve değişimleri kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Osmanlı Kültür ve Medeniyeti":"<h3>Osmanlı Kültür ve Medeniyeti</h3><p>Osmanlı eğitim, hukuk, yönetim, ekonomi, ordu, sanat ve toplum yapısını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Millî Mücadele":"<h3>Millî Mücadele</h3><p>Mondros’tan Lozan’a Millî Mücadele hazırlığı, TBMM, cepheler, antlaşmalar ve diplomatik süreci inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Atatürk İlke ve İnkılapları":"<h3>Atatürk İlke ve İnkılapları</h3><p>Atatürk ilkeleri, siyasi-hukuki-sosyal-ekonomik inkılaplar ve bunların amaçlarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Cumhuriyet Dönemi":"<h3>Cumhuriyet Dönemi</h3><p>Cumhuriyet’in siyasi, ekonomik, sosyal ve kültürel gelişmelerini dönemsel olarak ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Çağdaş Türk ve Dünya Tarihi":"<h3>Çağdaş Türk ve Dünya Tarihi</h3><p>20. yüzyılın siyasi gelişmeleri, dünya savaşları, Soğuk Savaş ve Türkiye’nin dış ilişkilerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Türkiye'nin Coğrafi Konumu":"<h3>Türkiye'nin Coğrafi Konumu</h3><p>Türkiye’nin matematik ve özel konumunun iklim, ulaşım, ekonomi ve jeopolitik sonuçlarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İklim ve Bitki Örtüsü":"<h3>İklim ve Bitki Örtüsü</h3><p>İklim elemanları, Türkiye’de iklim tipleri ve doğal bitki örtüsü ilişkisini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yer Şekilleri":"<h3>Yer Şekilleri</h3><p>Türkiye’nin dağ, ova, plato, karst ve kıyı şekillerini oluşumlarıyla birlikte inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Nüfus ve Yerleşme":"<h3>Nüfus ve Yerleşme</h3><p>Nüfusun dağılışı, nüfus yapısı, göçler ve kırsal-kentsel yerleşme özelliklerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Tarım":"<h3>Tarım</h3><p>Tarım ürünleri, tarımsal faaliyetlerin dağılışı ve doğal-beşeri koşullarla ilişkisini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Hayvancılık":"<h3>Hayvancılık</h3><p>Hayvancılık türleri, dağılış alanları ve iklim-yer şekilleriyle ilişkisini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Madenler ve Enerji":"<h3>Madenler ve Enerji</h3><p>Türkiye’nin maden kaynakları, enerji üretimi ve bunların dağılışını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Sanayi":"<h3>Sanayi</h3><p>Sanayi kollarının kuruluş koşulları, dağılışı, ham madde ve ulaşım ilişkilerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Ulaşım":"<h3>Ulaşım</h3><p>Türkiye’de ulaşım türleri, güzergâhlar ve coğrafi koşullar arasındaki ilişkiyi inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Bölgeler":"<h3>Bölgeler</h3><p>Türkiye’nin coğrafi bölgelerinin doğal ve beşeri özelliklerini karşılaştırmalı olarak ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Hukukun Temel Kavramları":"<h3>Hukukun Temel Kavramları</h3><p>Hukuk kuralları, yaptırım, kamu-özel hukuk ayrımı, hak, ehliyet ve hukuk sisteminin temel kavramlarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Anayasa":"<h3>Anayasa</h3><p>Anayasanın üstünlüğü, devlet organları, temel haklar ve anayasal düzenin temel esaslarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Temel Hak ve Özgürlükler":"<h3>Temel Hak ve Özgürlükler</h3><p>Kişi, sosyal-ekonomik ve siyasi hakların kapsamı ile anayasal güvencelerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yasama":"<h3>Yasama</h3><p>TBMM’nin kuruluşu, görev ve yetkileri, milletvekilliği ve yasama süreçlerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yürütme":"<h3>Yürütme</h3><p>Cumhurbaşkanı ve yürütme organının anayasal görev, yetki ve sorumluluklarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yargı":"<h3>Yargı</h3><p>Yargı bağımsızlığı, mahkemeler ve yargı yollarının temel anayasal çerçevesini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İdare Hukuku":"<h3>İdare Hukuku</h3><p>İdari teşkilat, kamu hizmeti, kolluk, idari işlemler, kamu malları ve idari yargı konularını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Seçimler":"<h3>Seçimler</h3><p>Seçim ilkeleri, seçimlerin yönetimi, siyasi katılım ve seçim hukukunun temel esaslarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Anayasa Hukuku":"<h3>Anayasa Hukuku</h3><p>Anayasanın üstünlüğü, temel ilkeler, devlet organları, anayasal yargı ve hakların sınırlandırılması sistemini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Medeni Hukuk":"<h3>Medeni Hukuk</h3><p>Kişiler, aile, miras ve eşya hukukunun temel kurumlarını ve hak ilişkilerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Borçlar Hukuku":"<h3>Borçlar Hukuku</h3><p>Sözleşmeler, haksız fiiller, sebepsiz zenginleşme ve borcun sona ermesi gibi borç ilişkilerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Ceza Hukuku":"<h3>Ceza Hukuku</h3><p>Suç, kast-taksir, hukuka uygunluk nedenleri, teşebbüs, iştirak ve yaptırım esaslarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Ticaret Hukuku":"<h3>Ticaret Hukuku</h3><p>Ticari işletme, şirketler, kıymetli evrak ve ticari işlere ilişkin temel kuralları ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İcra ve İflas Hukuku":"<h3>İcra ve İflas Hukuku</h3><p>Cebri icra, haciz, takip yolları, iflas ve alacaklı-borçlu ilişkilerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İktisada Giriş":"<h3>İktisada Giriş</h3><p>Kıtlık, tercih, fırsat maliyeti, arz-talep, piyasa dengesi ve temel ekonomik kavramları kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Mikro İktisat":"<h3>Mikro İktisat</h3><p>Tüketici ve üretici davranışı, maliyet, piyasa yapıları ve fiyat oluşumunu inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Makro İktisat":"<h3>Makro İktisat</h3><p>Milli gelir, enflasyon, işsizlik, büyüme ve maliye-para politikalarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Para-Banka":"<h3>Para-Banka</h3><p>Para arzı, merkez bankacılığı, bankacılık sistemi, faiz ve para politikası araçlarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Uluslararası İktisat":"<h3>Uluslararası İktisat</h3><p>Dış ticaret teorileri, döviz kuru, ödemeler dengesi ve ticaret politikalarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Türkiye Ekonomisi":"<h3>Türkiye Ekonomisi</h3><p>Türkiye ekonomisinin sektörleri, makro göstergeleri, dış dengesi ve temel ekonomik sorunlarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İktisadi Büyüme ve Kalkınma":"<h3>İktisadi Büyüme ve Kalkınma</h3><p>Büyüme teorileri, üretkenlik, sermaye, teknoloji ve insani kalkınma göstergelerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Maliye Teorisi":"<h3>Maliye Teorisi</h3><p>Kamu kesiminin ekonomik rolü, kamusal mallar, dışsallık ve devletin mali fonksiyonlarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kamu Harcamaları":"<h3>Kamu Harcamaları</h3><p>Kamu harcamalarının türleri, sınıflandırılması, etkileri ve artış nedenlerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kamu Gelirleri":"<h3>Kamu Gelirleri</h3><p>Vergi, harç, resim ve diğer kamu gelirlerinin yapısını ve ekonomik etkilerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kamu Borçları":"<h3>Kamu Borçları</h3><p>İç-dış borç, borçlanma teknikleri, borç servisi ve borç sürdürülebilirliğini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Bütçe":"<h3>Bütçe</h3><p>Bütçe ilkeleri, bütçe süreci, gelir-gider tahminleri ve bütçe hakkını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Ve​rgi Hukuku":"<h3>Ve​rgi Hukuku</h3><p>Vergiyi doğuran olay, tarh, tebliğ, tahakkuk, tahsil ve vergi uyuşmazlıklarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Maliye Politikası":"<h3>Maliye Politikası</h3><p>Ekonomik istikrar, büyüme, istihdam ve gelir dağılımı amaçlarıyla maliye politikası araçlarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Genel Muhasebe":"<h3>Genel Muhasebe</h3><p>Muhasebe kayıt sistemi, hesaplar, çift taraflı kayıt ve temel muhasebe işlemlerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Mali Tablolar":"<h3>Mali Tablolar</h3><p>Bilanço, gelir tablosu, nakit akış ve özkaynak değişim tablolarının yapısını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Maliyet Muhasebesi":"<h3>Maliyet Muhasebesi</h3><p>Maliyet türleri, maliyet dağıtımı, başabaş analizi ve üretim maliyetlerinin hesaplanmasını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Finansal Muhasebe":"<h3>Finansal Muhasebe</h3><p>Dönem sonu işlemleri, amortisman, stok, tahakkuk ve finansal raporlama uygulamalarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Muhasebe Standartları":"<h3>Muhasebe Standartları</h3><p>Finansal raporlama ilkeleri, TMS/TFRS yaklaşımı, sunum ve ölçüm esaslarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İşletme Yönetimi":"<h3>İşletme Yönetimi</h3><p>Planlama, örgütleme, yöneltme, koordinasyon, denetim ve stratejik yönetim süreçlerini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Pazarlama":"<h3>Pazarlama</h3><p>Pazarlama karması, tüketici davranışı, pazar bölümlendirme, konumlandırma ve müşteri değeri konularını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Finansal Yönetim":"<h3>Finansal Yönetim</h3><p>Yatırım, finansman, sermaye maliyeti, risk-getiri ve işletme sermayesi kararlarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Üretim Yönetimi":"<h3>Üretim Yönetimi</h3><p>Kapasite, kalite, stok, üretim planlama ve süreç yönetimi konularını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İnsan Kaynakları":"<h3>İnsan Kaynakları</h3><p>İşe alma, eğitim, performans, kariyer, ücret ve insan kaynağı planlamasını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Örgütsel Davranış":"<h3>Örgütsel Davranış</h3><p>Motivasyon, liderlik, iletişim, grup davranışı, örgüt kültürü ve çatışmayı ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Yönetim Bilimi":"<h3>Yönetim Bilimi</h3><p>Örgüt, yönetim fonksiyonları, bürokrasi, yetki ve karar verme süreçlerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Siyaset Bilimi":"<h3>Siyaset Bilimi</h3><p>Devlet, iktidar, demokrasi, siyasal kültür, katılım ve siyasal kurumları ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kentleşme ve Çevre Sorunları":"<h3>Kentleşme ve Çevre Sorunları</h3><p>Kentleşme, kentsel politika, çevre sorunları ve sürdürülebilirlik yaklaşımlarını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Türk İdare Tarihi":"<h3>Türk İdare Tarihi</h3><p>Osmanlı’dan Cumhuriyet’e idari yapıların dönüşümünü ve temel reformları inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Kamu Politikası":"<h3>Kamu Politikası</h3><p>Kamu sorununun gündeme gelmesinden politika oluşturma, uygulama ve değerlendirmeye kadar süreci ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Uluslararası İlişkilere Giriş":"<h3>Uluslararası İlişkilere Giriş</h3><p>Realizm, liberalizm, güç, egemenlik, anarşi ve uluslararası sistem gibi temel kavramları inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Uluslararası Hukuk":"<h3>Uluslararası Hukuk</h3><p>Devletler arası hukuk, antlaşmalar, sorumluluk, yargı ve diplomatik ilişkilerin temelini kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Uluslararası Örgütler":"<h3>Uluslararası Örgütler</h3><p>BM, NATO, AB, DTÖ gibi örgütlerin amaç, yapı ve işlevlerini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Siyasi Tarih":"<h3>Siyasi Tarih</h3><p>Modern uluslararası sistemin oluşumu, dünya savaşları, Soğuk Savaş ve önemli dönüm noktalarını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Uluslararası Politika":"<h3>Uluslararası Politika</h3><p>Güç dengesi, güvenlik, diplomasi, dış politika ve uluslararası krizleri ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Çalışma Ekonomisine Giriş":"<h3>Çalışma Ekonomisine Giriş</h3><p>Emek arz-talebi, ücret, işgücü, insan sermayesi ve çalışma piyasalarının temel yapısını inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İş Hukuku":"<h3>İş Hukuku</h3><p>İş sözleşmesi, işçinin ve işverenin borçları, çalışma süreleri ve iş sağlığı-güvenliği konularını kapsar.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Sosyal Güvenlik Hukuku":"<h3>Sosyal Güvenlik Hukuku</h3><p>Sosyal riskler, sigorta kolları, primler ve sosyal güvenlik sisteminin hukuki çerçevesini ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","Çalışma İlişkileri":"<h3>Çalışma İlişkileri</h3><p>Sendikalar, toplu pazarlık, toplu iş sözleşmesi, grev ve işveren ilişkilerini inceler.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>","İşgücü Piyasaları":"<h3>İşgücü Piyasaları</h3><p>İstihdam, işsizlik, ücret oluşumu, işgücü arz-talebi ve piyasa politikalarını ele alır.</p><h4>KPSS Odak Noktaları</h4><p>Tanımları ezberlemek yerine kavramların birbirleriyle ilişkisini, istisnalarını ve soru kökündeki ipuçlarını birlikte değerlendirin.</p>"};
+function openTopicAction(){hideAll();document.getElementById("topicActionScreen").classList.remove("hidden");document.getElementById("actionTitle").textContent="📚 "+selectedTopic;document.getElementById("actionSubtitle").textContent=selectedLevel+" • "+selectedLesson;document.getElementById("topicQuestionCount").textContent=filterQuestions(selectedLevel,selectedLesson,selectedTopic).length+" soru mevcut";}
+function openExplanation(){hideAll();document.getElementById("explanationScreen").classList.remove("hidden");document.getElementById("explanationTitle").textContent="📖 "+selectedTopic;document.getElementById("explanationSubtitle").textContent=selectedLevel+" • "+selectedLesson;document.getElementById("explanationBody").innerHTML=EXPLANATIONS[selectedTopic]||"<h3>Konu anlatımı</h3><p>Bu konu için anlatım ekranı hazır. Ayrıntılı içerik bu alana eklenebilir.</p>";}
+function goToTopicAction(){hideAll();document.getElementById("topicActionScreen").classList.remove("hidden");}
+
+function startQuiz(topic){
+  selectedTopic = topic;
+
+  questionPool = filterQuestions(
+    selectedLevel,
+    selectedLesson,
+    selectedTopic
+  );
+
+  if(questionPool.length === 0){
+    alert(
+      selectedTopic === "Tüm Konular"
+      ? "Bu ders ve seviyede henüz soru bulunamadı."
+      : "Bu konu için henüz soru eklenmedi. Önce soru bankasına bu konuya ait soruları ekleyeceğiz."
+    );
+    return;
+  }
+
+  /*
+    Soruları karıştırıyoruz ama cevap indekslerine dokunmuyoruz.
+  */
+  questionPool = shuffle([...questionPool]);
+
+  currentQuestion = 0;
+  correctCount = 0;
+  wrongCount = 0;
+  answered = false;
+  selectedAnswerIndex = null;
+  quizStartedAt = Date.now();
+  startTimer();
+  saveProgress();
+
+  document.getElementById("topicScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+
+  document.getElementById("quizMeta").textContent =
+    selectedLevel + " • " +
+    selectedLesson + " • " +
+    selectedTopic +
+    " • " + questionPool.length + " soru";
+
+  loadQuestion();
+}
+
+function loadQuestion(preserveState=false){
+  if(currentQuestion >= questionPool.length){
+    finishQuiz();
+    return;
+  }
+
+  if(!preserveState){
+    answered = false;
+    selectedAnswerIndex = null;
+  }
+
+  const q = questionPool[currentQuestion];
+
+  document.getElementById("questionNumber").textContent =
+    "Soru " + (currentQuestion + 1) + " / " + questionPool.length;
+
+  document.getElementById("questionText").textContent =
+    q.question;
+
+  document.getElementById("progressBar").style.width =
+    ((currentQuestion + 1) / questionPool.length * 100) + "%";
+
+  const options = document.getElementById("options");
+  options.innerHTML = "";
+
+  const feedback = document.getElementById("feedback");
+  feedback.className = "feedback";
+  feedback.textContent = "";
+
+  document.getElementById("nextBtn").classList.add("hidden");
+  updateBookmarkButton();
+
+  q.options.forEach((text, index) => {
+    const button = document.createElement("button");
+    button.className = "option";
+    button.textContent =
+      String.fromCharCode(65 + index) + ") " + text;
+
+    button.onclick = () => selectAnswer(index, button);
+    options.appendChild(button);
+  });
+
+  if(preserveState && answered && selectedAnswerIndex !== null){
+    const allOptions = document.querySelectorAll(".option");
+    allOptions.forEach(btn=>btn.disabled=true);
+    if(allOptions[selectedAnswerIndex]){
+      allOptions[selectedAnswerIndex].classList.add(selectedAnswerIndex===q.answer ? "correct" : "wrong");
+    }
+    if(allOptions[q.answer]) allOptions[q.answer].classList.add("correct");
+    showFeedback(selectedAnswerIndex===q.answer ? "✓ Doğru cevap!" : "✗ Yanlış cevap. Doğru cevap: "+String.fromCharCode(65+q.answer)+") "+q.options[q.answer], selectedAnswerIndex===q.answer);
+    document.getElementById("nextBtn").classList.remove("hidden");
+    document.getElementById("nextBtn").textContent=currentQuestion===questionPool.length-1?"Testi Bitir ✓":"Sonraki Soru →";
+  }
+}
+
+function selectAnswer(index, button){
+  if(answered) return;
+
+  answered = true;
+  selectedAnswerIndex = index;
+
+  const q = questionPool[currentQuestion];
+  const allOptions = document.querySelectorAll(".option");
+
+  allOptions.forEach(btn => {
+    btn.disabled = true;
+  });
+
+  if(index === q.answer){
+    button.classList.add("correct");
+    correctCount++;
+    recordStats(true);
+
+    showFeedback(
+      "✓ Doğru cevap!",
+      true
+    );
+  }else{
+    button.classList.add("wrong");
+
+    if(allOptions[q.answer]){
+      allOptions[q.answer].classList.add("correct");
+    }
+
+    wrongCount++;
+    recordStats(false);
+    addToWrong(q);
+
+    showFeedback(
+      "✗ Yanlış cevap. Doğru cevap: " +
+      String.fromCharCode(65 + q.answer) +
+      ") " + q.options[q.answer],
+      false
+    );
+  }
+
+  document.getElementById("nextBtn").classList.remove("hidden");
+  saveProgress();
+
+  document.getElementById("nextBtn").textContent =
+    currentQuestion === questionPool.length - 1
+    ? "Testi Bitir ✓"
+    : "Sonraki Soru →";
+}
+
+function showFeedback(text, isCorrect){
+  const box = document.getElementById("feedback");
+
+  box.textContent = text;
+  box.className =
+    "feedback " + (isCorrect ? "correct" : "wrong");
+}
+
+function nextQuestion(){
+  if(!answered) return;
+
+  currentQuestion++;
+  selectedAnswerIndex = null;
+  saveProgress();
+
+  if(currentQuestion >= questionPool.length){
+    finishQuiz();
+    return;
+  }
+
+  loadQuestion();
+}
+
+function finishQuiz(){
+  stopTimer();
+  clearProgress();
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.remove("hidden");
+
+  document.getElementById("resultTitle").textContent =
+    selectedLevel + " • " +
+    selectedLesson + " • " +
+    selectedTopic;
+
+  document.getElementById("totalStat").textContent =
+    questionPool.length;
+
+  document.getElementById("correctStat").textContent =
+    correctCount;
+
+  document.getElementById("wrongStat").textContent =
+    wrongCount;
+}
+
+function repeatQuiz(){
+  /*
+    Aynı seviye + ders + konu tekrar seçilir.
+    Diğer derslerin soruları kesinlikle karışmaz.
+  */
+  startQuiz(selectedTopic);
+}
+
+function goToLevel(){
+  stopTimer();
+  hideAll();
+  setHomeSections(true);
+  document.getElementById("levelScreen").classList.remove("hidden");
+}
+
+function goToLessons(){
+  hideAll();
+  document.getElementById("lessonScreen").classList.remove("hidden");
+  renderLessons();
+}
+
+function goToTopics(){
+  if(!document.getElementById("quizScreen").classList.contains("hidden")) saveProgress();
+  stopTimer();
+  hideAll();
+  document.getElementById("topicScreen").classList.remove("hidden");
+  renderTopics();
+}
+
+function hideAll(){
+  setHomeSections(false);
+  document.getElementById("levelScreen").classList.add("hidden");
+  document.getElementById("lessonScreen").classList.add("hidden");
+  document.getElementById("topicScreen").classList.add("hidden");
+  document.getElementById("topicActionScreen").classList.add("hidden");
+  document.getElementById("explanationScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("savedScreen").classList.add("hidden");
+  document.getElementById("wrongScreen").classList.add("hidden");
+  document.getElementById("statsScreen").classList.add("hidden");
+  document.getElementById("examSettingsScreen").classList.add("hidden");
+}
+
+
+function readStore(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function writeStore(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+}
+function questionKey(q){
+  return [q.level,q.lesson,q.topic || "Tüm Konular",q.question].join("||");
+}
+function getSaved(){ return readStore(STORAGE.saved, []); }
+function getWrong(){ return readStore(STORAGE.wrong, []); }
+function getStats(){ return readStore(STORAGE.stats,{solved:0,correct:0,wrong:0}); }
+function addUnique(key, q){
+  const list = key===STORAGE.saved ? getSaved() : getWrong();
+  const k = questionKey(q);
+  if(!list.some(x=>questionKey(x)===k)){
+    list.push(q); writeStore(key,list);
+  }
+}
+function removeQuestion(key, q){
+  const list = key===STORAGE.saved ? getSaved() : getWrong();
+  const k = questionKey(q);
+  writeStore(key,list.filter(x=>questionKey(x)!==k));
+  updateHomeTools();
+}
+function addToWrong(q){ addUnique(STORAGE.wrong,q); updateHomeTools(); }
+function isSaved(q){ return getSaved().some(x=>questionKey(x)===questionKey(q)); }
+function toggleCurrentBookmark(){
+  if(!questionPool[currentQuestion]) return;
+  const q=questionPool[currentQuestion];
+  if(isSaved(q)) removeQuestion(STORAGE.saved,q); else addUnique(STORAGE.saved,q);
+  updateBookmarkButton(); updateHomeTools();
+}
+function updateBookmarkButton(){
+  const btn=document.getElementById("bookmarkBtn");
+  if(!btn || !questionPool[currentQuestion]) return;
+  const saved=isSaved(questionPool[currentQuestion]);
+  btn.classList.toggle("saved",saved);
+  btn.textContent=saved ? "✅ Kayıtlı • Kaydı Kaldır" : "🔖 Soruyu Kaydet";
+}
+function recordStats(correct){
+  const st=getStats();
+  st.solved++; if(correct) st.correct++; else st.wrong++;
+  st.byLesson = st.byLesson || {};
+  st.byLesson[selectedLesson] = st.byLesson[selectedLesson] || {solved:0,correct:0,wrong:0};
+  st.byLesson[selectedLesson].solved++;
+  if(correct) st.byLesson[selectedLesson].correct++; else st.byLesson[selectedLesson].wrong++;
+  writeStore(STORAGE.stats,st); updateHomeTools();
+}
+function updateHomeTools(){
+  const saved=getSaved(), wrong=getWrong(), st=getStats();
+  const a=document.getElementById("savedCountHome"); if(a) a.textContent=saved.length;
+  const b=document.getElementById("wrongCountHome"); if(b) b.textContent=wrong.length;
+  const wr=document.getElementById("wrongRetryCount"); if(wr) wr.textContent=wrong.length;
+  const c=document.getElementById("statSolved"); if(c)c.textContent=st.solved;
+  const d=document.getElementById("statCorrect"); if(d)d.textContent=st.correct;
+  const e=document.getElementById("statWrong"); if(e)e.textContent=st.wrong;
+  const f=document.getElementById("statSaved"); if(f)f.textContent=saved.length;
+  const pct=st.solved?Math.round(st.correct/st.solved*100):0;
+  const ss=document.getElementById("statSuccess");if(ss)ss.textContent=pct+"%";
+  const fill=document.getElementById("successFill");if(fill)fill.style.width=pct+"%";
+  const line=document.getElementById("successLine");if(line){const wp=st.solved?Math.round(st.wrong/st.solved*100):0;line.textContent="Doğru: %"+pct+" • Yanlış: %"+wp;}
+  updateResumeCard();
+  const rp=document.getElementById("resumeMetaHome"), p=getProgress();
+  if(rp)rp.textContent=(p&&p.questionPool&&p.currentQuestion<p.questionPool.length)?(p.selectedLesson+" • Soru "+(p.currentQuestion+1)+" / "+p.questionPool.length):"Devam eden test yok";
+  renderLessonSuccess();
+}
+function saveProgress(){
+  if(!questionPool.length) return;
+  writeStore(STORAGE.progress,{
+    selectedLevel,selectedLesson,selectedTopic,questionPool,currentQuestion,correctCount,wrongCount,answered,selectedAnswerIndex,quizStartedAt
+  });
+  updateResumeCard();
+}
+function getProgress(){ return readStore(STORAGE.progress,null); }
+function clearProgress(){
+  try{localStorage.removeItem(STORAGE.progress);}catch(e){}
+  updateResumeCard();
+}
+function updateResumeCard(){
+  const card=document.getElementById("resumeCard");
+  const meta=document.getElementById("resumeMeta");
+  const p=getProgress();
+  if(!card || !meta) return;
+  if(!p || !p.questionPool || p.currentQuestion>=p.questionPool.length){card.classList.add("hidden");return;}
+  card.classList.remove("hidden");
+  meta.textContent=p.selectedLevel+" • "+p.selectedLesson+" • "+p.selectedTopic+"\nSoru "+(p.currentQuestion+1)+" / "+p.questionPool.length;
+}
+function resumeQuiz(){
+  const p=getProgress();
+  if(!p || !p.questionPool || !p.questionPool.length) return;
+  selectedLevel=p.selectedLevel; selectedLesson=p.selectedLesson; selectedTopic=p.selectedTopic;
+  questionPool=p.questionPool; currentQuestion=p.currentQuestion||0; correctCount=p.correctCount||0; wrongCount=p.wrongCount||0; answered=!!p.answered; selectedAnswerIndex=p.selectedAnswerIndex??null; quizStartedAt=p.quizStartedAt||Date.now();
+  hideAll(); document.getElementById("quizScreen").classList.remove("hidden");
+  document.getElementById("quizMeta").textContent=selectedLevel+" • "+selectedLesson+" • "+selectedTopic+" • "+questionPool.length+" soru";
+  startTimer(); loadQuestion(true);
+}
+function startTimer(){
+  stopTimer();
+  if(!quizStartedAt) quizStartedAt=Date.now();
+  timerInterval=setInterval(updateTimer,1000); updateTimer();
+}
+function stopTimer(){ if(timerInterval){clearInterval(timerInterval);timerInterval=null;} }
+function updateTimer(){
+  const el=document.getElementById("quizTimer"); if(!el) return;
+  const seconds=Math.max(0,Math.floor((Date.now()-quizStartedAt)/1000));
+  const m=String(Math.floor(seconds/60)).padStart(2,"0"), s=String(seconds%60).padStart(2,"0");
+  el.textContent="⏱️ "+m+":"+s;
+}
+function setHomeSections(show){
+  const home=document.getElementById("homeView");
+  if(home) home.classList.toggle("hidden",!show);
+  const level=document.getElementById("levelScreen");
+  if(show && level) level.classList.add("hidden");
+  const nav=document.getElementById("bottomNav");
+  if(nav) nav.classList.toggle("hidden",false);
+}
+function updateNav(active){
+  document.querySelectorAll("#bottomNav button").forEach(b=>b.classList.remove("active"));
+  const map={home:0,quiz:1,stats:2,date:3,saved:4};
+  if(map[active]!==undefined){const b=document.querySelectorAll("#bottomNav button")[map[active]];if(b)b.classList.add("active");}
+}
+function goHome(){ stopTimer(); hideAll(); setHomeSections(true); updateHomeTools(); updateExamCountdown(); updateNav("home"); }
+function openLevelSelection(){ stopTimer(); hideAll(); setHomeSections(false); document.getElementById("levelScreen").classList.remove("hidden"); updateNav("quiz"); }
+function startFresh(){ clearProgress(); openLevelSelection(); }
+function openSavedScreen(){ hideAll(); setHomeSections(false); document.getElementById("savedScreen").classList.remove("hidden"); renderQuestionList("saved"); updateNav("saved"); }
+function openWrongScreen(){ hideAll(); setHomeSections(false); document.getElementById("wrongScreen").classList.remove("hidden"); renderQuestionList("wrong"); updateNav("quiz"); }
+function openStatsScreen(){ hideAll(); setHomeSections(false); document.getElementById("statsScreen").classList.remove("hidden"); renderDetailedStats(); updateNav("stats"); }
+function openExamSettings(){ hideAll(); setHomeSections(false); document.getElementById("examSettingsScreen").classList.remove("hidden"); loadExamDateInput(); updateNav("date"); }
+function openDailyFactFocus(){ document.getElementById("dailyFactCard")?.scrollIntoView({behavior:"smooth",block:"center"}); }
+function renderQuestionList(type){
+  const list=type==="saved"?getSaved():getWrong();
+  const container=document.getElementById(type==="saved"?"savedList":"wrongList");
+  if(!container)return;
+  if(!list.length){container.innerHTML='<div class="empty">Henüz burada soru yok.</div>';return;}
+  container.innerHTML="";
+  list.forEach((q,i)=>{
+    const item=document.createElement("div"); item.className="list-item";
+    item.innerHTML='<strong>'+(i+1)+'. '+(q.topic||q.lesson)+'</strong><p></p><small>'+q.level+' • '+q.lesson+'</small><div class="actions"><button class="primary">📝 Çöz</button><button class="secondary">🗑️ Kaldır</button></div>';
+    item.querySelector("p").textContent=q.question;
+    item.querySelector(".primary").onclick=()=>startSingleQuestion(q);
+    item.querySelector(".secondary").onclick=()=>{removeQuestion(type==="saved"?STORAGE.saved:STORAGE.wrong,q);renderQuestionList(type);};
+    container.appendChild(item);
+  });
+}
+function startSingleQuestion(q){
+  selectedLevel=q.level; selectedLesson=q.lesson; selectedTopic=q.topic||"Tüm Konular";
+  questionPool=[q]; currentQuestion=0; correctCount=0; wrongCount=0; answered=false; selectedAnswerIndex=null; quizStartedAt=Date.now();
+  hideAll(); document.getElementById("quizScreen").classList.remove("hidden");
+  document.getElementById("quizMeta").textContent=selectedLevel+" • "+selectedLesson+" • "+selectedTopic+" • 1 soru";
+  startTimer(); loadQuestion(); saveProgress();
+}
+window.addEventListener("beforeunload",saveProgress);
+
+function shuffle(array){
+  for(let i = array.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
+
+function getExamDate(){ return readStore(STORAGE.examDate,""); }
+function saveExamDate(){
+  const input=document.getElementById("examDateInput");
+  if(!input || !input.value) return;
+  writeStore(STORAGE.examDate,input.value);
+  updateExamCountdown();
+  updateExamPreview();
+  goHome();
+}
+function clearExamDate(){
+  try{localStorage.removeItem(STORAGE.examDate);}catch(e){}
+  updateExamCountdown();
+  loadExamDateInput();
+}
+function loadExamDateInput(){
+  const input=document.getElementById("examDateInput"); if(!input)return;
+  const val=getExamDate(); input.value=val||""; updateExamPreview();
+}
+function updateExamPreview(){
+  const el=document.getElementById("examPreview"); if(!el)return;
+  const v=getExamDate();
+  el.textContent=v ? "Seçilen tarih: "+new Date(v).toLocaleString("tr-TR") : "Henüz tarih seçilmedi.";
+}
+function updateExamCountdown(){
+  const raw=getExamDate();
+  const label=document.getElementById("examDateLabel");
+  if(!raw){
+    ["countDays","countHours","countMinutes","countSeconds"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent="—";});
+    if(label)label.textContent="Sınav tarihi belirlenmedi";
+    return;
+  }
+  const target=new Date(raw).getTime();
+  const diff=target-Date.now();
+  if(label)label.textContent=new Date(raw).toLocaleString("tr-TR");
+  if(diff<=0){
+    ["countDays","countHours","countMinutes","countSeconds"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent="0";});
+    if(label)label.textContent="Sınav zamanı geldi / geçti";
+    return;
+  }
+  const total=Math.floor(diff/1000);
+  const days=Math.floor(total/86400); const hours=Math.floor((total%86400)/3600); const minutes=Math.floor((total%3600)/60); const seconds=total%60;
+  document.getElementById("countDays").textContent=String(days).padStart(2,"0");
+  document.getElementById("countHours").textContent=String(hours).padStart(2,"0");
+  document.getElementById("countMinutes").textContent=String(minutes).padStart(2,"0");
+  document.getElementById("countSeconds").textContent=String(seconds).padStart(2,"0");
+}
+setInterval(updateExamCountdown,1000);
+
+function startWrongQuiz(){
+  const wrong=getWrong();
+  if(!wrong.length){ alert("Henüz yanlış yaptığın soru yok."); return; }
+  selectedLevel="Karışık"; selectedLesson="Yanlışlarım"; selectedTopic="Yanlışlar";
+  questionPool=shuffle(wrong.slice()); currentQuestion=0; correctCount=0; wrongCount=0; answered=false; selectedAnswerIndex=null; quizStartedAt=Date.now();
+  hideAll(); setHomeSections(false); document.getElementById("quizScreen").classList.remove("hidden");
+  document.getElementById("quizMeta").textContent="Yanlışlarım • "+questionPool.length+" soru";
+  startTimer(); loadQuestion(); saveProgress(); updateNav("quiz");
+}
+function renderDetailedStats(){
+  const st=getStats(); const solved=st.solved||0, correct=st.correct||0, wrong=st.wrong||0; const pct=solved?Math.round(correct/solved*100):0;
+  ["detailSolved","detailCorrect","detailWrong"].forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=[solved,correct,wrong][i];});
+  const ds=document.getElementById("detailSuccess");if(ds)ds.textContent=pct+"%";
+  const grid=document.getElementById("detailLessonGrid");if(!grid)return; grid.innerHTML="";
+  const names=[...LESSONS,...ALAN_LESSONS].map(x=>x.name); const seen=new Set();
+  names.forEach(name=>{if(seen.has(name))return;seen.add(name);const d=st.byLesson[name]||{solved:0,correct:0,wrong:0};const p=d.solved?Math.round(d.correct/d.solved*100):0;const item=document.createElement("div");item.className="lesson-success-item";item.innerHTML='<strong>'+name+'</strong><div class="pct">%'+p+'</div><div class="bar"><i style="width:'+p+'%"></i></div>';grid.appendChild(item);});
+}
+function renderLessonSuccess(){
+  const st=getStats(), grid=document.getElementById("lessonSuccessGrid"); if(!grid)return; grid.innerHTML="";
+  const names=["Türkçe","Matematik","Tarih","Coğrafya","Vatandaşlık"]; names.forEach(name=>{const d=st.byLesson[name]||{solved:0,correct:0};const p=d.solved?Math.round(d.correct/d.solved*100):0;const item=document.createElement("div");item.className="lesson-success-item";item.innerHTML='<strong>'+name+'</strong><div class="pct">%'+p+'</div><div class="bar"><i style="width:'+p+'%"></i></div>';grid.appendChild(item);});
+}
+
+/* GÜNÜN GENEL KÜLTÜR BİLGİSİ
+   Tarihe göre otomatik değişir. Uygulama her gün farklı bir kayıt gösterir.
+*/
+const DAILY_FACTS = [
+  {category:"Edebiyat", q:'“Çalıkuşu” romanının yazarı kimdir?', a:'Reşat Nuri Güntekin.'},
+  {category:"Sanat", q:'“Kaplumbağa Terbiyecisi” adlı eserin sanatçısı kimdir?', a:'Osman Hamdi Bey.'},
+  {category:"Edebiyat", q:'“İnce Memed” adlı romanın yazarı kimdir?', a:'Yaşar Kemal.'},
+  {category:"Tarih", q:'Türkiye Büyük Millet Meclisi hangi tarihte açılmıştır?', a:'23 Nisan 1920.'},
+  {category:"Tarih", q:'Türkiye Cumhuriyeti hangi tarihte ilan edilmiştir?', a:'29 Ekim 1923.'},
+  {category:"Coğrafya", q:'Türkiye’nin yüzölçümü bakımından en büyük gölü hangisidir?', a:'Van Gölü.'},
+  {category:"Coğrafya", q:'Türkiye’nin en yüksek dağı hangisidir?', a:'Ağrı Dağı.'},
+  {category:"Tarih", q:'Ankara ne zaman Türkiye Cumhuriyeti’nin başkenti olmuştur?', a:'13 Ekim 1923.'},
+  {category:"Tarih", q:'Kurtuluş Savaşı’nın askerî safhasını sona erdiren antlaşma hangisidir?', a:'Mudanya Ateşkes Antlaşması.'},
+  {category:"Tarih", q:'Lozan Barış Antlaşması hangi yıl imzalanmıştır?', a:'1923.'},
+  {category:"Vatandaşlık", q:'Türkiye Büyük Millet Meclisi’nin yasama yetkisi hangi anayasal ilkeyle doğrudan ilişkilidir?', a:'Millî egemenlik ilkesiyle.'},
+  {category:"Edebiyat", q:'“Safahat” adlı eserin şairi kimdir?', a:'Mehmet Âkif Ersoy.'},
+  {category:"Edebiyat", q:'“Tutunamayanlar” romanının yazarı kimdir?', a:'Oğuz Atay.'},
+  {category:"Edebiyat", q:'“Kürk Mantolu Madonna” adlı eserin yazarı kimdir?', a:'Sabahattin Ali.'},
+  {category:"Sanat", q:'“Mona Lisa” tablosunun sanatçısı kimdir?', a:'Leonardo da Vinci.'},
+  {category:"Sanat", q:'“Guernica” adlı eserin sanatçısı kimdir?', a:'Pablo Picasso.'},
+  {category:"Tarih", q:'Türkiye Cumhuriyeti’nin ilk Cumhurbaşkanı kimdir?', a:'Mustafa Kemal Atatürk.'},
+  {category:"Tarih", q:'Saltanat hangi yıl kaldırılmıştır?', a:'1922.'},
+  {category:"Tarih", q:'Halifelik hangi yıl kaldırılmıştır?', a:'1924.'},
+  {category:"Tarih", q:'Harf Devrimi hangi yıl gerçekleştirilmiştir?', a:'1928.'},
+  {category:"Coğrafya", q:'Türkiye’de en fazla yağış alan bölge genel olarak hangisidir?', a:'Karadeniz Bölgesi.'},
+  {category:"Coğrafya", q:'Türkiye’nin en uzun akarsuyu hangisidir?', a:'Kızılırmak.'},
+  {category:"Coğrafya", q:'Türkiye’nin en büyük yüzölçümüne sahip ili hangisidir?', a:'Konya.'},
+  {category:"Bilim", q:'Dünya’nın doğal uydusunun adı nedir?', a:'Ay.'},
+  {category:"Bilim", q:'Suyun deniz seviyesinde kaynama sıcaklığı kaç °C’dir?', a:'100 °C.'},
+  {category:"Bilim", q:'Fotosentez için bitkilerin atmosferden aldığı temel gaz hangisidir?', a:'Karbondioksit (CO₂).'},
+  {category:"Kültür", q:'UNESCO’nun merkezi hangi şehirdedir?', a:'Paris.'},
+  {category:"Kültür", q:'Türk kahvesi kültürü UNESCO Somut Olmayan Kültürel Miras Listesi’ne hangi yıl alınmıştır?', a:'2013.'},
+  {category:"Tarih", q:'İstanbul’un fethi hangi tarihte gerçekleşmiştir?', a:'29 Mayıs 1453.'},
+  {category:"Tarih", q:'Malazgirt Savaşı hangi yıl yapılmıştır?', a:'1071.'},
+  {category:"Tarih", q:'Türkiye Cumhuriyeti’nin ilk anayasası hangi yıl kabul edilmiştir?', a:'1921.'}
+];
+
+let dailyFactIndex = 0;
+
+function initDailyFact(){
+  const now = new Date();
+  const dayNumber = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86400000);
+  dailyFactIndex = Math.abs(dayNumber) % DAILY_FACTS.length;
+  const fact = DAILY_FACTS[dailyFactIndex];
+
+  document.getElementById('dailyFactCategory').textContent = fact.category;
+  document.getElementById('dailyFactQuestion').textContent = fact.q;
+  document.getElementById('dailyFactAnswer').innerHTML = '<strong>Cevap:</strong> ' + fact.a;
+  document.getElementById('dailyFactAnswer').classList.remove('show');
+  document.getElementById('dailyFactButton').textContent = '💡 Cevabı Göster';
+}
+
+function toggleDailyFact(){
+  const answer = document.getElementById('dailyFactAnswer');
+  const button = document.getElementById('dailyFactButton');
+  const isShown = answer.classList.toggle('show');
+  button.textContent = isShown ? '🙈 Cevabı Gizle' : '💡 Cevabı Göster';
+}
+
+initDailyFact();
+setHomeSections(true);
+updateHomeTools();
+updateExamCountdown();
+loadExamDateInput();
+
+</script>
+</body>
+</html>
